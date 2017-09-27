@@ -1,0 +1,43 @@
+What's wrong with REST and what you should use instead
+19 October 2017
+
+Johan Brandhorst
+Backend Developer, InfoSum
+johan.brandhorst@gmail.com
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi I'm Johan, work at InfoSum, professional programmer for 5 years, mostly Go, Python and C++.
+: I have a couple of open source projects on GitHub, mostly written in Go, my current favourite language.
+: Today I want to talk about REST, what's wrong with it, and what you should be using for your web service instead.
+: To do that, I'm going to be using my new kitten.
+
+* Meet Olive
+
+.image olive.jpg _ 500
+
+.caption _Olive_, Full Stack Developer
+
+: This is Olive. Olive is a full stack developer. She's running a website trafficking catmint, catnip
+: and other cat paraphenelia.
+
+* Olives stack
+
+- React/Vue JavaScript frontend
+- NodeJS backend
+- JSON REST API
+
+.image status_quo.svg _ 200
+
+: She enjoys using JavaScript and her backend server is written in NodeJS.
+: Her frontend is written in some modern framework like React or Vue or whatever is the current FOTM.
+: She uses JSON with REST to communicate between her frontend and backend. Olive is happy with her stack.
+: But Olive is wrong.
+
+* Olive is wrong
+
+.image no.jpg _ 400
+
+* Whats wrong with REST
+
+

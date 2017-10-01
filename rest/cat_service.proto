@@ -1,0 +1,108 @@
+syntax = "proto3";
+
+// Package library exposes a list of books
+// over a gRPC API.
+package library;
+
+import "google/protobuf/timestamp.proto";
+import "github.com/johanbrandhorst/protobuf/proto/gopherjs.proto";
+
+option (gopherjs.gopherjs_package) = "github.com/johanbrandhorst/grpcweb-example/client/proto/library";
+option go_package = "github.com/johanbrandhorst/grpcweb-example/server/proto/library";
+
+// BookType describes the different types
+// a book in the library can be.
+enum BookType {
+  // Hardcover is a book with a hard back.
+  HARDCOVER = 0;
+  // Paperback is a book with a soft back.
+  PAPERBACK = 1;
+  // Audiobook is an audio recording of the book.
+  AUDIOBOOK = 2;
+}
+
+// Publisher describes a Book Publisher.
+message Publisher {
+  // Name is the name of the Publisher.
+  string name = 1;
+}
+
+// Book represents a book in the library.
+message Book {
+  // Isbn is the ISBN number of the book.
+  int64 isbn = 1;
+  // Title is the title of the book.
+  string title = 2;
+  // Author is the author of the book.
+  string author = 3;
+  // BookType is the type of the book.
+  BookType book_type = 4;
+  // PublishingMethod is the publishing method
+  // used for this Book.
+  oneof publishing_method {
+    // SelfPublished means this book was
+    // self published.
+    bool self_published = 5;
+    // Publisher means this book was published
+    // through a Publisher.
+    Publisher publisher = 6;
+  }
+  // PublicationDate is the time of publication of the book.
+  google.protobuf.Timestamp publication_date = 7;
+}
+
+// GetBookRequest is the input to the GetBook method.
+message GetBookRequest {
+  // Isbn is the ISBN with which
+  // to match against the ISBN of a book in the library.
+  int64 isbn = 1;
+}
+
+// QueryBooksRequest is the input to the QueryBooks method.
+message QueryBooksRequest {
+  // AuthorPrefix is the prefix with which
+  // to match against the author of a book in the library.
+  string author_prefix = 1;
+}
+
+// Collection is a collection of books
+message Collection {
+  // Books is a list of books
+  repeated Book books = 1;
+}
+
+// BookMessage is used to discuss books
+message BookMessage {
+  oneof content {
+    // Name is the name of the person who is sending this message.
+    // It should be sent as the first message on the stream.
+    string name = 1;
+    // Message is any message the user wishes to send.
+    string message = 2;
+  }
+}
+
+// BookResponse is used to discuss books
+message BookResponse {
+  // Message is a message from a user.
+  string message = 2;
+}
+
+// START OMIT
+// CatServer is used to browse and sell cat products 🐱🐱🐱
+//
+service CatServer {
+
+  // GetCatToy gets a cat toy 🐱🐱🐱
+  rpc GetCatToy(GetCatToyRequest) returns (CatToy) {}
+
+  // QueryCatToys is used to get a filtered list of cat toys 🐱🐱🐱
+  rpc QueryCatToys(QueryCatToyRequest) returns (stream CatToy) {}
+
+  // BuyCatToys sends a list of cat toys for purchasing 🐱🐱🐱
+  rpc BuyCatToys(stream CatToy) returns (Receipt) {}
+
+  // CatChat is a chat for cats 🐱🐱🐱
+  rpc BookChat(stream CatMessage) returns (stream CatMessage) {}
+}
+// END OMIT

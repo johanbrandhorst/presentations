@@ -10,7 +10,7 @@ https://jbrandhorst.com
 : Hi I'm Johan, I work at InfoSum, a startup based right by the basingstoke train station.
 : I've been a professional programmer for 5 years, working mostly with Go, Python and C++.
 : I have a couple of open source projects on GitHub, mostly written in Go, my current favourite language.
-: Today I want to talk about JSON/REST, what's wrong with it, and what you should be using for your web service instead.
+: Today I want to talk about JSON/REST, what's wrong with it, and what you should (consider) using for your web app instead.
 : To do that, I'm going to be using my kitten.
 
 * Meet Olive
@@ -20,9 +20,9 @@ https://jbrandhorst.com
 .caption _Olive_, Full Stack Developer
 
 : This is Olive. Olive is a full stack developer. She's running a website trafficking catmint, catnip
-: and other cat paraphenelia.
+: and other cat paraphenelia. It's doing pretty well, and she's always on the run from the cat cops trying to shut her down.
 
-* Olives stack
+* Olives technology stack
 
 - React/Vue JavaScript frontend
 - NodeJS backend
@@ -39,7 +39,7 @@ Olive is happy with her stack
 
 .image no.jpg _ 400
 
-* Whats wrong with JSON/REST
+* Why Olive should worry
 
 - JSON is inefficient, verbose, slow
 - Handwritten interfaces on both sides
@@ -49,11 +49,12 @@ Olive is happy with her stack
 
 .image status_quo.svg
 
-: JSON as a payload is itself enough reason not to pursue this design. It can easily become a bottleneck in the app.
+: JSON is ok for things like human readable configuration. It is not good for machine-to-machine communications.
+: There are certain small details of JSON that can catch you out (numbers, commas).
 : Manually writing the code to call the API in the frontend, then manually writing the code to listen for the API calls in the
-: backend.
-: It can be difficult keeping the code between the frontend and backend in sync. This can discourage making changes and improvements
-: when you're faced with two sources of truth.
+: backend. This can lead to a difficult keeping the code between the frontend and backend in sync. Everr
+: found yourself annoying the frontend team by wanting to make many incremental improvements to the interface?
+: This can further discourage making changes and improvements when you're faced with keeping two sources of truth in sync.
 : No generic error handling beyond HTTP codes, which are often less accurate and well defined than you might want.
 : These are only some of the issues with the current standard solution, but before we go into the better way of doing things, lets
 : take a step back and look at Olives backend infrastructure.
@@ -66,20 +67,33 @@ Olive is happy with her stack
 
 .image backend.svg
 
-: Olive recently rewrote most of the backend infrastructure away from one monolithic PHP app into a scalable microservices
+: Olive recently rewrote most of her backend infrastructure away from one monolithic PHP app into a scalable microservices
 : infrastructure. As part of this she adopted gRPC and protobuf as a communications layer between her microservices.
-: Lets take a quick look at gRPC and protobuf.
+: This introduced her to the many benefits of using a purpose built protocol and transport layer.
+: What the heck is protobuf and gRPC you ask? Lets take a look.
 
-* gRPC and Protobuf
+* Protobuf
 
-Protobuf
-
+- Developed by Google
 - Binary serialization format
 - Define once, generate idiomatic code for many languages
 - Automatically backwards and forwards compatible
+- Up to [[https://auth0.com/blog/beating-json-performance-with-protobuf/][6 times faster marshalling than JSON]]
+- Official support for C++, Go, Java, Python, Ruby, C#, Objective C, Javascript (NodeJS) and PHP
+- Many third party implementations for [[https://github.com/google/protobuf/blob/master/docs/third_party.md][other languages]]
 
-gRPC
+: Protobuf was originally an internal Google project that they open sourced with version 2.
+: It is a serialization format, like JSON. Unlike JSON, protobuf data is very quickly and efficiently packaged
+: onto and from the wire.
+: You define a file, called a "protofile", and generate code for the language(s) of your choice.
+: It comes with automatic backwards and forwards compatibility.
+: It has been widely used within Google and other large infrastructure companies for many years.
+: Today, protobuf has official support for C++, Go, Java, Python, Ruby, C#, Objective C, Javascript (NodeJS) and PHP.
+: There are many third party implementations to add support for other languages.
 
+* gRPC
+
+- Developed by Google
 - Communications protocol
 - HTTP2
 - Generate idiomatic client and server libraries
@@ -87,8 +101,6 @@ gRPC
 - Defined error codes for unambiguous errors
 - Donated to CNCF
 
-: Protobuf is a serialization format, like JSON. Unlike JSON, protobuf data is very quickly and efficiently packaged
-: onto and from the wire. It has been widely used at Google and other large infrastructure companies for many years.
 : gRPC is a communications protocol, built on top of HTTP2. By default gRPC uses protobuf as its serialization format,
 : and many of the existing protobuf language generators can now generate gRPC Client and Server code.
 : Both Protobuffers and gRPC are developed and pushed by Google. gRPC has been donated to the Cloud Native Computing Foundation.
@@ -108,8 +120,9 @@ gRPC
 - Used in production by Improbable
 
 : Of course, we can! gRPC-Web allows most (not all, yet!) of the benefits of gRPC to be used in the frontend. We get
-: binary payloads, server side streaming, generated backward/forward compatible clients. gRPC-Web uses modern
-: web technologies like HTTP2 and Fetch when possible, and transparently downgrades to HTTP1 and XHR when necessary.
+: binary payloads, server side streaming, generated backward/forward compatible clients, no more fighting with the frontend team
+: about making changes! They just regenerate their interface and plug in your new functionality.
+: gRPC-Web uses modern web technologies like HTTP2 and Fetch when possible, and transparently downgrades to HTTP1 and XHR when necessary.
 : There is an official spec developed by Google, and last year there was work on an official client and proxy by Google,
 : targeted for a Q1 2017 release, but the work on that seems to have died down.
 : Instead, there is a spec-compliant client available, developed by Improbable, a London based company working with games and cloud technology.
@@ -123,11 +136,10 @@ gRPC
 
 : The browser is not like any other gRPC client. There is currently no support for client side or bi-directional streaming.
 : This will eventually be supported, but is subject to finilisation of the Streams browser API. I personally think this holdup
-: is the reason Google halted their work on the gRPC-web client, in addition to the fact that a spec-compliant third party
-: alternative exists, of course.
+: is the reason Google halted their work on the gRPC-web client.
 : It also requires the use of a small proxy, translating HTTP1 requests to HTTP2 and mapping certain headers.
 : The fact that we don't have an official google-backed client is a downside for me, though the existing client
-: is by no means low quality. The spec, of course, is officially part of the Google gRPC ecosystem.
+: is by no means low quality. The spec, of course, is officially part of the gRPC ecosystem.
 : (Pause)
 : Next I want to talk a little about my personal project related to gRPC-Web.
 
@@ -138,8 +150,8 @@ gRPC
 .image gopherjs.png _ 500
 
 : I mentioned at the start that I greatly enjoy Go, and one Go community project I particularly enjoy using is called GopherJS.
-: GopherJS allows you to transpile go code to javascript and run it in the browser. There are many reasons not to manually write
-: any javascript, but that's an entire talk in itself. Lets just say I've taken in interest in working with GopherJS.
+: GopherJS allows you to transpile Go code to javascript and run it in the browser. There are many reasons not to manually write
+: any javascript, but that's an entire talk in itself. Lets just say I've taken an interest in working with GopherJS.
 
 * GopherJS Bindings for gRPC-Web
 
@@ -147,13 +159,13 @@ gRPC
 - Combines the benefits of GopherJS with the benefits of gRPC-Web
 - Supports Client-side streaming via Websocket proxy
 
-: My current personal project takes gRPC-Web and combines it with GopherJS. It also adds support for
+: My current personal pet project takes gRPC-Web and combines it with GopherJS. It also adds support for
 : client side and bidirectional streaming by mixing in some websockets. I'm not going to drop too many technical
 : details here, lets just take a quick run down of how to use the library and then we'll have a demo at the end!
 
 * A simple cat service
 
-.code cat_service.proto /START OMIT/,/END OMIT/
+.code cat_service.proto
 
 : We're gonna help Olive on the way and start defining the interface she can use for her frontend. We do this with a protofile definition.
 : This abbreviated example shows how to define RPC methods with the 4 different modes:
@@ -183,7 +195,7 @@ Generate with protoc:
 * Conclusion
 
 gRPC-Web is a great alternative to JSON/REST for frontend-backend communications,
-and with my library we add client streaming and type-safe frontend development.
+and with my library we add client streaming and static typing.
 
 .image diff_side.png _ 975
 

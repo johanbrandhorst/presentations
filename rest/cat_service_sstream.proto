@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package shop;
+
+message QueryCatToyRequest {
+    repeated string toy_ids = 1;
+}
+
+message CatToy {
+    string name = 1;
+    uint32 price = 2;
+}
+
+// CatServer is used to browse and sell cat products 🐱🐱🐱
+service CatServer {
+  // QueryCatToys is used to get a filtered list of cat toys 🐱🐱🐱
+  rpc QueryCatToys(QueryCatToyRequest) returns (stream CatToy) {}
+}

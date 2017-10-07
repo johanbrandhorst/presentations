@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package shop;
+
+message CatToy {
+    string name = 1;
+    uint32 price = 2;
+}
+
+message BuyCatToysRequest {
+    string toy_id = 1;
+}
+
+message Receipt {
+    uint32 price_paid = 1;
+    repeated CatToy toys_purchased = 2;
+}
+
+// CatServer is used to browse and sell cat products 🐱🐱🐱
+service CatServer {
+  // BuyCatToys sends a list of cat toys for purchasing 🐱🐱🐱
+  rpc BuyCatToys(stream BuyCatToysRequest) returns (Receipt) {}
+}

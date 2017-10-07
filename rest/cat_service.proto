@@ -16,5 +16,5 @@ service CatServer {
   rpc BuyCatToys(stream CatToy) returns (Receipt) {}
 
   // CatChat is a chat for cats 🐱🐱🐱
-  rpc BookChat(stream CatMessage) returns (stream CatMessage) {}
+  rpc CatChat(stream CatMessage) returns (stream CatMessage) {}
 }

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package shop;
+
+message CatMessage {
+    string name = 1;
+    string message = 2;
+}
+
+// CatServer is used to browse and sell cat products 🐱🐱🐱
+service CatServer {
+  // CatChat is a chat for cats 🐱🐱🐱
+  rpc CatChat(stream CatMessage) returns (stream CatMessage) {}
+}

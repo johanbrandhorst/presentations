@@ -1,4 +1,4 @@
-What's wrong with JSON/REST and what you should use instead
+Why REST is dead and what you should use instead
 19 October 2017
 
 Johan Brandhorst
@@ -10,7 +10,7 @@ https://jbrandhorst.com
 : Hi I'm Johan, I work at InfoSum, a startup based right by the basingstoke train station.
 : I've been a professional programmer for 5 years, working mostly with Go, Python and C++.
 : I have a couple of open source projects on GitHub, mostly written in Go, my current favourite language.
-: Today I want to talk about JSON/REST, what's wrong with it, and what you should (consider) using for your web app instead.
+: Today I want to talk about JSON/REST, what's wrong with it, and what you should be using for your web app instead.
 : To do that, I'm going to be using my kitten.
 
 * Meet Olive
@@ -28,7 +28,7 @@ https://jbrandhorst.com
 - NodeJS backend
 - JSON REST API
 
-Olive is happy with her stack
+.image status_quo.svg
 
 : She enjoys using JavaScript and her backend server is written in NodeJS.
 : Her frontend is written in some modern framework like React or Vue or whatever is the current FOTM.
@@ -65,7 +65,7 @@ Olive is happy with her stack
 - Android Java client
 - gRPC and protobuf communications layer
 
-.image backend.svg
+.image grpc_diagram.png _ 600
 
 : Olive recently rewrote most of her backend infrastructure away from one monolithic PHP app into a scalable microservices
 : infrastructure. As part of this she adopted gRPC and protobuf as a communications layer between her microservices.
@@ -74,13 +74,13 @@ Olive is happy with her stack
 
 * Protobuf
 
-- Developed by Google
 - Binary serialization format
 - Define once, generate idiomatic code for many languages
 - Automatically backwards and forwards compatible
 - Up to [[https://auth0.com/blog/beating-json-performance-with-protobuf/][6 times faster marshalling than JSON]]
-- Official support for C++, Go, Java, Python, Ruby, C#, Objective C, Javascript (NodeJS) and PHP
-- Many third party implementations for [[https://github.com/google/protobuf/blob/master/docs/third_party.md][other languages]]
+- 9 officially supported languages, many more third party implementations
+
+.image protobuf.jpg
 
 : Protobuf was originally an internal Google project that they open sourced with version 2.
 : It is a serialization format, like JSON. Unlike JSON, protobuf data is very quickly and efficiently packaged
@@ -91,15 +91,23 @@ Olive is happy with her stack
 : Today, protobuf has official support for C++, Go, Java, Python, Ruby, C#, Objective C, Javascript (NodeJS) and PHP.
 : There are many third party implementations to add support for other languages.
 
+* 
+
+.image protobuf_times.png _ 1000
+
+.caption Source: [[https://auth0.com/blog/beating-json-performance-with-protobuf/][Auth0 JSON/Protobuf comparison]]
+
+: Quick comparison image from the article referenced on the previous slide. 
+
 * gRPC
 
-- Developed by Google
 - Communications protocol
-- HTTP2
 - Generate idiomatic client and server libraries
 - 1:N, N:1, N:M streaming support
 - Defined error codes for unambiguous errors
 - Donated to CNCF
+
+.image grpc.png _ 500
 
 : gRPC is a communications protocol, built on top of HTTP2. By default gRPC uses protobuf as its serialization format,
 : and many of the existing protobuf language generators can now generate gRPC Client and Server code.
@@ -108,16 +116,17 @@ Olive is happy with her stack
 : Olive has been reaping the benefit of this refactor for a while now, but what if all these nice things
 : could be had in our frontend-backend communications?
 
-* gRPC-Web
+* Introducing gRPC-Web
 
 - gRPC and Protobuf for the browser
 - Efficiently encoded binary payloads
 - 1:N streaming
-- Generated client API
 - Backwards and forwards compatibility
 - Uses modern tech (HTTP2/Fetch API)
-- TypeScript/JavaScript Client developed by Improbable
-- Used in production by Improbable
+
+.image grpcweb.jpg _ 700
+
+.caption Source: [[https://improbable.io/games/blog/grpc-web-moving-past-restjson-towards-type-safe-web-apis][Improbable.io]]
 
 : Of course, we can! gRPC-Web allows most (not all, yet!) of the benefits of gRPC to be used in the frontend. We get
 : binary payloads, server side streaming, generated backward/forward compatible clients, no more fighting with the frontend team
@@ -133,6 +142,8 @@ Olive is happy with her stack
 - No N:1 or N:M streaming support
 - Requires server-side proxy
 - No official _client_
+
+.image facepalm.jpg _ 500
 
 : The browser is not like any other gRPC client. There is currently no support for client side or bi-directional streaming.
 : This will eventually be supported, but is subject to finilisation of the Streams browser API. I personally think this holdup
@@ -159,38 +170,50 @@ Olive is happy with her stack
 - Combines the benefits of GopherJS with the benefits of gRPC-Web
 - Supports Client-side streaming via Websocket proxy
 
+.image better_way.svg
+
 : My current personal pet project takes gRPC-Web and combines it with GopherJS. It also adds support for
-: client side and bidirectional streaming by mixing in some websockets. I'm not going to drop too many technical
-: details here, lets just take a quick run down of how to use the library and then we'll have a demo at the end!
+: client side and bidirectional streaming by mixing in some websockets.
+: We're gonna help Olive on the way and start defining the interface she can use for her frontend.
+: We do this with a protofile definition.
 
-* A simple cat service
+* A simple cat shop service
 
-.code cat_service.proto
+.code cat_service_unary.proto
 
-: We're gonna help Olive on the way and start defining the interface she can use for her frontend. We do this with a protofile definition.
-: This abbreviated example shows how to define RPC methods with the 4 different modes:
-: Unary, Server Streaming, Client Streaming and Bidirectionally streaming.
-: Olive will sell catnip and toys like never before after this upgrade!
-: Now that we've defined the interface we'll need to generate the code.
-
-* Generate the code
-
-Get the plugin:
-
-    go get -u github.com/johanbrandhorst/protobuf/protoc-gen-gopherjs
-
-Generate with protoc:
-
-    protoc --gopherjs_out=plugins=grpc:./client/proto/shop/ proto/cat_service.proto
-
-: The generation step requires protoc-gen-gopherjs to be installed, which you can get by running go get ...
-: This generation leaves us with the package "shop" which provides the interface our frontend code can use.
-: Of course, the same protofile should be used to generate the backend interface.
-: While Olive will be taking advantage of all this advice, I'm going to show a slightly different demo of this in action.
 
 * 
 
 .iframe https://grpcweb.jbrandhorst.com/ 600 975
+
+* A server streaming method
+
+.code cat_service_sstream.proto
+
+* 
+
+.iframe https://grpcweb.jbrandhorst.com/ 600 975
+
+* A client streaming method
+
+.code cat_service_cstream.proto
+
+* 
+
+.iframe https://grpcweb.jbrandhorst.com/ 600 975
+
+* A bidirectionally streaming method
+
+.code cat_service_bidi_stream.proto
+
+* 
+
+.iframe https://grpcweb.jbrandhorst.com/ 600 975
+
+
+: Olive will sell catnip and toys like never before after this upgrade!
+
+
 
 * Conclusion
 
@@ -229,7 +252,7 @@ and with my library we add client streaming and static typing.
 
 * Questions?
 
-.image gopher.png _ 400
+.image gopher.png _ 500
 
 .caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]
 

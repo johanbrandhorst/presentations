@@ -20,7 +20,8 @@ https://jbrandhorst.com
 .caption _Olive_, Full Stack Developer
 
 : This is Olive. Olive is a full stack developer. She's running a website trafficking catmint, catnip
-: and other cat paraphenelia. It's doing pretty well, and she's always on the run from the cat cops trying to shut her down.
+: and other cat paraphenelia. It's doing pretty well, and she's always on the
+: run from the cat cops trying to shut her down.
 
 * Olives technology stack
 
@@ -32,7 +33,7 @@ https://jbrandhorst.com
 
 : She enjoys using JavaScript and her backend server is written in NodeJS.
 : Her frontend is written in some modern framework like React or Vue or whatever is the current FOTM.
-: She uses JSON with REST to communicate between her frontend and backend. Olive is happy with her stack.
+: She uses a RESTful JSON API to communicate between her frontend and backend. Olive is happy with her stack.
 : But Olive is wrong.
 
 * Olive is wrong
@@ -49,12 +50,10 @@ https://jbrandhorst.com
 
 .image status_quo.svg
 
-: JSON is ok for things like human readable configuration. It is not good for machine-to-machine communications.
-: There are certain small details of JSON that can catch you out (numbers, commas).
+: JSON is ok for things like human readable configuration. It is not good for machine-to-machine communications. (numbers, commas).
 : Manually writing the code to call the API in the frontend, then manually writing the code to listen for the API calls in the
-: backend. This can lead to a difficult keeping the code between the frontend and backend in sync. Everr
-: found yourself annoying the frontend team by wanting to make many incremental improvements to the interface?
-: This can further discourage making changes and improvements when you're faced with keeping two sources of truth in sync.
+: backend. This can lead to a difficult keeping the code between the frontend and backend in sync.
+: Two sources of truth in sync.
 : No generic error handling beyond HTTP codes, which are often less accurate and well defined than you might want.
 : These are only some of the issues with the current standard solution, but before we go into the better way of doing things, lets
 : take a step back and look at Olives backend infrastructure.
@@ -80,7 +79,10 @@ https://jbrandhorst.com
 - Up to [[https://auth0.com/blog/beating-json-performance-with-protobuf/][6 times faster marshalling than JSON]]
 - 9 officially supported languages, many more third party implementations
 
-.image protobuf.jpg
+.image protobuf.jpg _ 800
+
+.caption Source: [[https://developers.google.com/protocol-buffers/][Google Protocol Buffers]]
+
 
 : Protobuf was originally an internal Google project that they open sourced with version 2.
 : It is a serialization format, like JSON. Unlike JSON, protobuf data is very quickly and efficiently packaged
@@ -93,7 +95,7 @@ https://jbrandhorst.com
 
 * 
 
-.image protobuf_times.png _ 1000
+.image protobuf_times.png _ 1050
 
 .caption Source: [[https://auth0.com/blog/beating-json-performance-with-protobuf/][Auth0 JSON/Protobuf comparison]]
 
@@ -107,7 +109,9 @@ https://jbrandhorst.com
 - Defined error codes for unambiguous errors
 - Donated to CNCF
 
-.image grpc.png _ 500
+.image grpc.png _ 700
+
+.caption Source: [[https://grpc.io/][gRPC.io]]
 
 : gRPC is a communications protocol, built on top of HTTP2. By default gRPC uses protobuf as its serialization format,
 : and many of the existing protobuf language generators can now generate gRPC Client and Server code.
@@ -124,7 +128,7 @@ https://jbrandhorst.com
 - Backwards and forwards compatibility
 - Uses modern tech (HTTP2/Fetch API)
 
-.image grpcweb.jpg _ 700
+.image grpcweb.jpg _ 750
 
 .caption Source: [[https://improbable.io/games/blog/grpc-web-moving-past-restjson-towards-type-safe-web-apis][Improbable.io]]
 
@@ -158,7 +162,9 @@ https://jbrandhorst.com
 
 - Go to Javascript _transpiler_
 
-.image gopherjs.png _ 500
+.image gopherjs.png _ 450
+
+.caption Source: [[https://twitter.com/gopherjs][GopherJS Twitter]]
 
 : I mentioned at the start that I greatly enjoy Go, and one Go community project I particularly enjoy using is called GopherJS.
 : GopherJS allows you to transpile Go code to javascript and run it in the browser. There are many reasons not to manually write
@@ -181,46 +187,39 @@ https://jbrandhorst.com
 
 .code cat_service_unary.proto
 
-* 
-
-.iframe https://grpcweb.jbrandhorst.com/ 600 975
+: Switch to prepared demo page
+: In the words of Fermat: I have a truly remarkable proof of this which this projector is too small to contain
 
 * A server streaming method
 
 .code cat_service_sstream.proto
 
-* 
-
-.iframe https://grpcweb.jbrandhorst.com/ 600 975
+: Switch to prepared demo page
 
 * A client streaming method
 
 .code cat_service_cstream.proto
 
-* 
-
-.iframe https://grpcweb.jbrandhorst.com/ 600 975
+: Switch to prepared demo page
 
 * A bidirectionally streaming method
 
 .code cat_service_bidi_stream.proto
 
-* 
-
-.iframe https://grpcweb.jbrandhorst.com/ 600 975
-
+: Switch to prepared demo page
 : Olive will sell catnip and toys like never before after this upgrade!
 
 * Conclusion
 
-gRPC-Web is a great alternative to JSON/REST for frontend-backend communications,
-and with my library we add client streaming and static typing.
+gRPC-Web is a great alternative to JSON/REST for frontend-backend communications.
 
 .image diff_side.png _ 975
 
+.caption Graphic: Paul Jolly ([[https://twitter.com/_myitcv][@_myitcv]])
+
 : To sum up, we now know whats wrong with JSON/REST, and have a real alternative in gRPC-web.
 : I hope after this presentation I will have at least whet your appetite for trying something other than the usual
-: REST/JSON layout for your next frontend project. Olive will certainly be sure to reconsider her design choices!
+: RESTful JSON API for your next frontend project. Olive will certainly be sure to reconsider her design choices!
 
 * Links
 
@@ -253,4 +252,4 @@ and with my library we add client streaming and static typing.
 .caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]
 
 : https://github.com/grpc/grpc/blob/master/doc/g_stands_for.md
-
+: 1.8 'g' stands for 'generous'

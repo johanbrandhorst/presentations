@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "github.com/cat-astrophic/proto/shop";
+
+package shop;
+
+message CatToy {
+    string id = 1;
+    string name = 2;
+    uint32 price = 3;
+}
+
+message GetCatToyRequest {
+    string toy_id = 1;
+}
+
+// CatServer is used to browse and sell cat products 🐱🐱🐱
+service CatServer {
+  // GetCatToy gets a cat toy 🐱🐱🐱
+  rpc GetCatToy(GetCatToyRequest) returns (CatToy) {}
+}

@@ -1,0 +1,458 @@
+Creating GopherJS Apps with gRPC-Web
+3rd Feb 2018
+
+Johan Brandhorst
+Backend Developer, InfoSum
+johan.brandhorst@gmail.com
+@johanbrandhorst
+https://jbrandhorst.com
+
+: InfoSum.
+: Using Go for 2 years.
+: Open Source projects.
+: Contributed to the Go programming language.
+: Blog.
+: 00:30
+
+* Topics
+
+.image protobuf.jpg 80 _
+.image grpc.png 80 _
+.image gopherjs.svg 100 _
+PLACEHOLDER LOGO FOR MY PROJECT
+
+.caption Surfing gopher by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: Whirlwind tour
+: Protobuf
+: gRPC
+: gRPC-Web
+: GopherJS
+: GopherJS Bindings for gRPC-Web
+: Create GopherJS app with gRPC-Web
+: 01:00
+
+* Protobuf
+
+* Protobuf
+
+- Fast binary serialization format
+- Generate code for many languages
+- Backwards compatible interfaces
+- 9 officially supported languages
+
+.image protobuf.jpg _ 800
+
+.caption Source: [[https://developers.google.com/protocol-buffers/][Google Protocol Buffers]]
+
+: Show of hands, who's using protobuf?
+: Binary serialization format, Code generation
+: Designed to solve service-to-service communications payloads
+: Fast! (20-100 times faster than XML according to Google),
+: Wire backwards compatibility
+: Wide official language support, including Go, C++, Java, Python + third party libraries
+: (As far as I can tell, this is the best logo of protobuf that exists)
+: 02:00
+
+* Protofiles
+
+.code protofile.proto 0,/CatToy/+4
+
+: Go package option
+: Messages
+: Scalars
+: Oneof, enum, maps, arrays, nested messages.
+: Will come back to services
+: 02:30
+
+* Generated Go code
+
+.code protofile.pb.go /type CatToy/,+4
+.code protofile.pb.go /GetId/,+5
+.code protofile.pb.go /GetPrice/,+5
+
+: Getters
+: Struct tags
+: Marshalling performed through reflection
+: Gogoproto
+: 03:00
+
+* gRPC
+
+* gRPC
+
+- RPC protocol
+- Built on HTTP/2
+- Protobuf payloads
+- Generate client and server stubs
+- Streaming
+- Donated to CNCF
+
+.image grpc.png _ 600
+.caption Source: [[https://grpc.io][gRPC.io]]
+
+: RPC protocol, Built on HTTP/2
+: Serialization agnostic, but normally protobuf
+: Code generation
+: Powerful streaming capabilities
+: Completes the service-to-service communications solution
+: Donated to Cloud Native Computing Foundation
+: 03:30
+
+* Polyglot microservice architectures
+
+.image grpc_diagram.svg _ 900
+.caption Source: [[https://grpc.io][gRPC.io]]
+
+: Server: C++,
+: Client: Java, Ruby, Python
+: 04:00
+
+* Protobuf services
+
+.code protofile.proto
+
+: Services map to gRPC servers and clients
+: 04:30
+
+* Generated client and server interfaces
+
+.code protofile.pb.go /type CatServerClient/,/return &catServer/+1
+.code protofile.pb.go /type CatServerServer/,/}/
+
+: Generated client
+: User implements service interface
+: 05:00
+
+* gRPC-Web
+
+* gRPC-Web
+
+- gRPC for the browser
+- Protobuf serialization
+- Server-side streaming
+- Browser becomes just another gRPC client
+
+.image grpc_browser.svg 250 _
+.caption Source: [[https://grpc.io][gRPC.io]]
+
+: Official spec
+: Protobuf
+: Server-side streaming
+: Brings benefits of gRPC to the frontend
+: 05:30
+
+* Caveats
+
+- Requires proxy
+- No client-side, bidirectional streaming
+- No _official_ implementation
+
+: Spec mandates non-wire compliancy with gRPC, so proxy required
+: No client-side streaming, yet
+: No officially available spec implementation
+: Encoded wire messages, harder for human to read
+: 06:00
+
+* gRPC-Web Client from Improbable
+
+* gRPC-Web Client from Improbable
+
+- TypeScript implementation
+- HTTP/2, Fetch
+- Go gRPC-Web proxy
+
+.image grpcweb.jpg 350 _
+.caption Source: [[https://improbable.io/games/blog/grpc-web-moving-past-restjson-towards-type-safe-web-apis][Improbable.io]]
+
+: Spec compliant TypeScript implementation
+: HTTP/2 downgrades to HTTP/1.1
+: Fetch downgrades to XHR
+: Go proxy package, binary
+: Diagram shows both types in use
+: 06:30
+
+* Caveats
+
+- Generator dependencies
+    --js_out - the standard argument to protoc that generates .js files in the specified directory
+    --ts_out - the params and directory to output to.
+    This directory must match js_out
+.caption Source: [[https://github.com/improbable-eng/ts-protoc-gen#typescript-usage-with-services][`protoc-gen-ts` README]]
+- TypeScript
+
+: Generator has dependency on js protobuf files
+: Thankfully not JavaScript, but
+: TypeScript ecosystem, npm
+: 07:00
+
+* GopherJS
+
+* GopherJS
+
+- Go to JavaScript transpiler
+- Supports [[https://github.com/gopherjs/gopherjs#what-is-supported][_nearly_]] everything
+- Most of standard library tests pass
+- Used by [[https://perkeep.org/][Perkeep]] (Camlistore), [[https://discussions.agilebits.com/discussion/84114/question-on-how-1password-x-uses-javascript-transpiled-go-code/p1?new=1][1Password X]]
+- Community bindings
+
+.image gopherjs.svg _ 350
+.caption Surfing gopher by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: Richard Musiol
+: Updated with each Go release
+: Playground
+: Community bindings (react, vue, dom, websocket)
+: 07:30
+
+* Caveats
+
+- Can generate _huge_ JS files
+.image perkeep.png _ 1000
+.caption Perkeep Generated GopherJS file
+- No blocking calls
+
+: Huge filesize
+: Avoid fmt, anything that imports fmt
+: Blocking calls, fundamentally JS limitation, compiler error exists
+: 08:00
+
+* GopherJS gRPC-Web bindings
+
+* GopherJS gRPC-Web bindings
+
+- Combines GopherJS with gRPC-Web
+- Designed for Go-gRPC familiarity
+- Independent generator
+- Client-side and bidirectional streaming
+
+.image better_way.svg _ 950
+
+: My open source project
+: Bindings for Improbable gRPC-web client
+: Combine GopherJS with gRPC-Web
+: Familiarity with Go gRPC clients
+: Independent generator
+: Streaming through websocket proxy
+: 09:00
+
+* Use cases
+
+- GopherJS browser apps
+- GopherJS _Electron_ apps
+- Custom gRPC Service frontends
+
+: Browser
+: Electron
+: Custom frontends
+: 09:30
+
+* Generated GopherJS stubs
+
+.code protofile.pb.gopherjs.go /type CatServerClient/,/NewClient/+2
+
+: Same API as Go gRPC client
+: 10:00
+
+* Demo
+
+: Design interface (involve audience)
+: Attach JS handler to handler click, writing result of query to page
+: 16:00
+
+* Challenges
+
+: Explore some challenges
+
+* Choice of client
+
+- Official pre-alpha client
+
+- Improbable client
+
+: Only official client available initially
+: Improbable blog post (April)
+: 16:30
+
+* Official pre-alpha client
+
+Pros:
+
+- Official client
+- Google Closure compiler
+- Google Closure library base
+
+Cons:
+
+- Incomplete
+- Poor documentation
+- Hard to test/debug (C++ NGINX plugin)
+- Abandoned (?)
+
+: Official client pre-release client
+: Easier to compile, closure compiler
+: Closure library base
+: Incomplete, Poorly documented
+: C++ nginx plugin a nightmare to build and configure for testing.
+: Abandoned (?)
+: Ultimately never got it working
+: 17:30
+
+* Improbable client
+
+Pros:
+
+- Fully spec compliant
+- Well maintained
+- Well tested
+- Well documented
+- Proxy written in Go
+- Easy to test/debug
+
+Cons:
+
+- Third party client
+- Webpack compiler
+
+: Spec compliant
+: Well maintained, tested, and documented
+: Go proxy
+: Non-official client
+: Webpack compiler harder than closure
+: 18:30
+
+* Solution
+
+Use Improbable gRPC-Web client _for_ _now_
+
+: Improbable client much easier
+: Monitoring official client repository
+: 19:00
+
+* Protobuf Javascript serialization
+
+- Depend on `protoc` `--js_out` output
+- Duplicating logic
+
+: Depend on protoc output?
+: Duplicate protobufJS generator logic?
+: 19:30
+
+* Depend on protoc
+
+Pros:
+
+- Simpler generator
+- Automatic updates
+
+Cons:
+
+- Poor user experience
+- Hard to avoid manual edits in generated files
+    # Replace top level import with global reference
+    $ sed -i "s;require('google-protobuf');\$global;g" <generated_js_file_pb.js>
+    # Replace any well known type imports with correct namespace
+    $ sed -i -E "s;require\('google-protobuf/.*'\);\$global.proto.google.protobuf;g" <generated_js_file_pb.js>
+    # Remove export statement
+    $ sed -i -E "s/goog\.object\.extend\(exports, proto\..*\);$//g" <generated_js_file_pb.js>
+.caption Source: [[https://github.com/johanbrandhorst/protobuf/tree/9d10df48a7777cfc0db45499537a00a6179d2708/protoc-gen-gopherjs#usage][old README]]
+
+: Less work on my end
+: More easily maintainable
+: Poor user experience
+: Manual edits in generated files
+: 20:30
+
+* Duplicate logic
+
+Pros:
+
+- Much improved user experience
+
+Cons:
+
+- More generator work
+- More maintenance required
+- Greater testing burden
+
+: Far superior user experience
+: More generator work required
+: Greater maintenance burden
+: Greater testing burden
+: 21:00
+
+* Solution
+
+- Duplicate logic in generator
+- Write bindings for ProtobufJS
+
+.code writer.go /\/\/ Writer/,/WriteInt32/
+.code reader.go /\/\/ Reader/,/ReadInt32/
+.caption [[https://github.com/johanbrandhorst/protobuf/tree/master/jspb][GopherJS ProtobufJS bindings]]
+
+: Added ProtobufJS logic to generator
+: Wrote GopherJS bindings for ProtobufJS, used by generated files
+: 21:30
+
+* Testing package compliance
+
+- Validate `protoc-gen-gopherjs` serialization
+- Validate gRPC-Web client functionality
+
+: Ensure all options and all types tested
+: 22:00
+
+* Test using Go gRPC Server as Oracle
+
+.code test_client.go /SingleString/,+10
+.caption [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/client/main.go#L873][GopherJS Client]]
+
+.code test_server.go /EchoAllTypes/,/return/+1
+.caption [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/server/main.go#L219][Go server]]
+
+: See my blog post about GopherJS testing
+: 23:00
+
+* Future work
+
+- Spin off websocket proxy package to standalone proxy
+- Add gRPC headers and trailers to websocket streams
+- Add more dial options, call options
+- Auto-generated GopherJS-frontend from protofile?
+
+: Spin off proxy like Improbable did
+: Add gRPC headers, trailers, call options, dial options
+: Auto-generated frontend for protofile
+: 24:00
+
+* Conclusion
+
+.image ecosystem.png _ 975
+
+.caption Graph by [[https://twitter.com/_myitcv][Paul Jolly]]
+
+: First class citizen
+: Easy GopherJS integration
+: 24:30
+
+* Thanks to
+
+- FOSDEM, Go Devroom organizers, [[https://campoy.cat/][Francesc Campoy]]
+- [[https://improbable.io][Improbable]], [[https://twitter.com/mwitkow][Michał Witkowski]]
+- [[https://github.com/neelance][Richard Musiol]], [[https://github.com/shurcooL][Dmitry Shuralyov]], GopherJS community
+- [[https://github.com/tmc][Travis Cline]], author of [[https://github.com/tmc/grpc-websocket-proxy]]
+- [[https://twitter.com/_myitcv][Paul Jolly]]
+
+: FOSDEM, Go Devroom organizers, Francesc Campoy in particular for his help with my presentation
+: Improbable for their gRPC-Web library (special shoutout to Michał Witkowski for his amazing gRPC community contributions)
+: Richard Musiol, creator of GopherJS (who is working on WASM now!).
+: Dmitry Shuralyov for putting his time into maintaining GopherJS.
+: Travis Cline, the author of the grpc-websocket-proxy which inspired me to create a binary websocket proxy.
+: Paul Jolly for his excellent work on GopherJS and the React bindings and for pushing me to present my own work.
+: 25:00
+
+* Questions?
+
+.image gopher.png _ 500
+
+.caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]

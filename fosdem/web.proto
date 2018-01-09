@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+// Web exposes a backend server over gRPC.
+package web;
+
+import "github.com/johanbrandhorst/protobuf/proto/gopherjs.proto";
+
+// Define the package locations the generated files will go into
+option (gopherjs.gopherjs_package) = "github.com/johanbrandhorst/demo/proto/client";
+option go_package = "github.com/johanbrandhorst/demo/proto/server";
+
+message UserRequest {
+    string id = 1;
+}
+
+message User {
+    string id = 1;
+    string name = 2;
+    uint32 age = 3;
+}
+
+// Backend defines the interface exposed by the backend.
+// TODO: Define functionality exposed by backend.
+service Backend {
+    rpc GetUser(UserRequest) returns (User) {}
+}

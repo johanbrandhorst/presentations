@@ -97,7 +97,6 @@ const _ = grpc.SupportPackageIsVersion4
 // Client API for CatServer service
 
 type CatServerClient interface {
-	// GetCatToy gets a cat toy 🐱🐱🐱
 	GetCatToy(ctx context.Context, in *GetCatToyRequest, opts ...grpc.CallOption) (*CatToy, error)
 }
 
@@ -121,7 +120,6 @@ func (c *catServerClient) GetCatToy(ctx context.Context, in *GetCatToyRequest, o
 // Server API for CatServer service
 
 type CatServerServer interface {
-	// GetCatToy gets a cat toy 🐱🐱🐱
 	GetCatToy(context.Context, *GetCatToyRequest) (*CatToy, error)
 }
 

@@ -14,8 +14,6 @@ message GetCatToyRequest {
     string toy_id = 1;
 }
 
-// CatServer is used to browse and sell cat products 🐱🐱🐱
 service CatServer {
-  // GetCatToy gets a cat toy 🐱🐱🐱
   rpc GetCatToy(GetCatToyRequest) returns (CatToy) {}
 }

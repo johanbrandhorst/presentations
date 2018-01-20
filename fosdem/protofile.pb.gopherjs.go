@@ -191,9 +191,7 @@ const _ = grpcweb.GrpcWebPackageIsVersion2
 
 // Client API for CatServer service
 
-// CatServer is used to browse and sell cat products 🐱🐱🐱
 type CatServerClient interface {
-	// GetCatToy gets a cat toy 🐱🐱🐱
 	GetCatToy(ctx context.Context, in *GetCatToyRequest, opts ...grpcweb.CallOption) (*CatToy, error)
 }
 

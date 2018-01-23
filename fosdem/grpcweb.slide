@@ -7,11 +7,11 @@ johan.brandhorst@gmail.com
 @johanbrandhorst
 https://jbrandhorst.com
 
-: Swedish living in England.
-: InfoSum.
+: Swede in England. InfoSum, data startup.
 : Using Go for 2 years.
 : Open Source projects, Contributed to the Go programming language.
 : Blog.
+: Topic: My open source project, creating apps with gRPC-Web
 : Next up: Quick overview
 : 00:30
 
@@ -25,11 +25,11 @@ https://jbrandhorst.com
 .image gopherjs.svg 100 _
 .caption Surfing gopher by [[https://twitter.com/egonelbre][Egon Elbre]]
 
-: Whirlwind tour
+: Today we will learn about
 : Protobuf, gRPC, gRPC-Web, GopherJS
-: Introduce gRPC-Web for GopherJS
+: Introduce gRPC-Web for Go
 : Create simple GopherJS app with gRPC-Web
-: Explore some design challenges encountered
+: Explore some design challenges
 : Next up: Lets start with Protobuf
 : 01:00
 
@@ -194,16 +194,16 @@ https://jbrandhorst.com
 : Next up: So what do we get if we put all of this together?
 : 07:00
 
-* gRPC-Web for GopherJS
+* gRPC-Web for Go
 
 : My open source project
 
-* gRPC-Web for GopherJS
+* gRPC-Web for Go
 
-- Brings gRPC-Web to GopherJS
+- Brings gRPC-Web to Go
 - Designed for Go-gRPC familiarity
 - Independent generator
-- Client-side and bidirectional streaming
+- Full streaming support
 
 .image better_way.svg _ 950
 
@@ -221,8 +221,8 @@ https://jbrandhorst.com
 - GopherJS _Electron_ apps
 - Custom gRPC Service frontends
 
-: Browser
-: Electron
+: Browser app communications
+: Electron app communications
 : Custom frontends
 : Next up: What does it look like?
 : 08:30
@@ -270,11 +270,9 @@ Cons:
 - Hard to test/debug (C++ NGINX plugin)
 - Abandoned (?)
 
-: Official client pre-release client
-: Easier to compile, closure compiler
-: Closure library base
-: Incomplete, Poorly documented
-: C++ nginx plugin a nightmare to build and configure for testing.
+: Pros:
+: Official pre-release client, Easier to compile, closure compiler, Closure library base
+: Cons: Incomplete, Poorly documented, C++ nginx plugin a nightmare to build and configure for testing.
 : Abandoned (?), Ultimately never got it working
 : Next up: What about the Improbable client?
 : 17:30
@@ -399,6 +397,7 @@ Cons:
 .caption [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/server/main.go#L219][Go server]]
 
 : Make a huge f***-off struct with all kinds of types
+: Combine with jUnit, Agouti and headless Chrome
 : See my blog post about GopherJS testing
 : Next up: Whats next for my library?
 : 23:00
@@ -413,8 +412,8 @@ Cons:
 .image wasm.png _ 600
 
 : Spin off proxy like Improbable did
-: Add gRPC headers, trailers, call options, dial options
-: Auto-generated frontend for protofile
+: Add gRPC headers, trailers to websocket calls
+: call options, dial options
 : Richard Musiol working on web assembly for Go.
 : Next up: What have we learned today?
 : 24:00

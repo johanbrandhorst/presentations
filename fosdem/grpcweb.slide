@@ -39,7 +39,7 @@ https://jbrandhorst.com
 
 * Protobuf
 
-- Googles IDL
+- Google's IDL
 - Binary serialization format
 - Backwards compatible
 - Code generation
@@ -161,7 +161,7 @@ https://jbrandhorst.com
 - Go gRPC-Web proxy
 - Used in production
 
-.image grpcweb.jpg 350 _
+.image grpcweb.jpg 310 _
 .caption Source: [[https://improbable.io/games/blog/grpc-web-moving-past-restjson-towards-type-safe-web-apis][Improbable.io]]
 
 : Spec compliant TypeScript implementation
@@ -373,9 +373,9 @@ Cons:
 - Duplicate logic in generator
 - Write bindings for ProtobufJS
 
-.code writer.go /\/\/ Writer/,/WriteInt32/
-.code reader.go /\/\/ Reader/,/ReadInt32/
-.caption [[https://github.com/johanbrandhorst/protobuf/tree/master/jspb][GopherJS ProtobufJS bindings]]
+.code writer.go /type Writer/,/WriteInt32/
+.code reader.go /type Reader/,/ReadInt32/
+.caption Source: [[https://github.com/johanbrandhorst/protobuf/tree/master/jspb][GopherJS ProtobufJS bindings]]
 
 : Added ProtobufJS logic to generator
 : Wrote GopherJS bindings for ProtobufJS, used by generated files
@@ -395,10 +395,10 @@ Cons:
 * Test using Go gRPC Server as Oracle
 
 .code test_client.go /SingleString/,+10
-.caption [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/client/main.go#L873][GopherJS Client]]
+.caption Source: [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/client/main.go#L873][GopherJS Client]]
 
 .code test_server.go /EchoAllTypes/,/return/+1
-.caption [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/server/main.go#L219][Go server]]
+.caption Source: [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/server/main.go#L219][Go server]]
 
 : Make a huge f***-off struct with all kinds of types
 : Combine with jUnit, Agouti and headless Chrome

@@ -159,6 +159,7 @@ https://jbrandhorst.com
 - TypeScript implementation
 - HTTP/2, Fetch
 - Go gRPC-Web proxy
+- Used in production
 
 .image grpcweb.jpg 350 _
 .caption Source: [[https://improbable.io/games/blog/grpc-web-moving-past-restjson-towards-type-safe-web-apis][Improbable.io]]
@@ -168,6 +169,7 @@ https://jbrandhorst.com
 : Fetch downgrades to XHR
 : Go proxy package, binary
 : Diagram shows both types in use
+: Used in production at Improbable
 : Next up: But we can't run Go in the browser?
 : 06:00
 
@@ -180,7 +182,7 @@ https://jbrandhorst.com
 - Go to JavaScript transpiler
 - Supports [[https://github.com/gopherjs/gopherjs#what-is-supported][_nearly_]] everything
 - Most of standard library tests pass
-- Used by [[https://perkeep.org/][Perkeep]] (née Camlistore), [[https://discussions.agilebits.com/discussion/84114/question-on-how-1password-x-uses-javascript-transpiled-go-code/p1?new=1][1Password X]]
+- Used by [[https://perkeep.org/][Perkeep]] (née Camlistore), [[https://discussions.agilebits.com/discussion/84114/question-on-how-1password-x-uses-javascript-transpiled-go-code/p1?new=1][1Password X]], [[https://savo.la/talks/gopherjs/][Ninchat]]
 - Community bindings
 
 .image gopherjs.svg _ 350
@@ -218,10 +220,12 @@ https://jbrandhorst.com
 * Use cases
 
 - GopherJS browser apps
+- GopherJS browser extensions
 - GopherJS _Electron_ apps
 - Custom gRPC Service frontends
 
 : Browser app communications
+: Browser extensions
 : Electron app communications
 : Custom frontends
 : Next up: What does it look like?

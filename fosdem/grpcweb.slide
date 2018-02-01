@@ -267,6 +267,7 @@ https://jbrandhorst.com
 - [[https://github.com/neelance][Richard Musiol]], [[https://github.com/shurcooL][Dmitry Shuralyov]], GopherJS community
 - [[https://github.com/tmc][Travis Cline]], author of [[https://github.com/tmc/grpc-websocket-proxy]]
 - [[https://twitter.com/_myitcv][Paul Jolly]]
+- You!
 
 : FOSDEM, Go Devroom organizers
 : Improbable for their gRPC-Web library (special shoutout to Michał Witkowski)
@@ -274,6 +275,7 @@ https://jbrandhorst.com
 : Dmitry Shuralyov for putting his time into maintaining GopherJS.
 : Travis Cline, the author of the grpc-websocket-proxy which inspired me to create a binary websocket proxy.
 : Paul Jolly for his excellent work on GopherJS and the React bindings and for pushing me to present my own work.
+: YOU! For attending my talk!
 : 25:00
 
 * Questions?

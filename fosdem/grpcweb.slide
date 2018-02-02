@@ -7,8 +7,8 @@ johan.brandhorst@gmail.com
 @johanbrandhorst
 https://jbrandhorst.com
 
-: Swede in England. InfoSum, data collaboration startup.
-: Using Go for 2 years.
+: Super excited to be here. Swede in England.
+: InfoSum, data collaboration startup. Using Go for 2 years.
 : Open Source projects, Contributed to the Go programming language.
 : Blog.
 : Topic: My open source project, creating apps with gRPC-Web
@@ -18,7 +18,7 @@ https://jbrandhorst.com
 * Today we will
 
 - Learn about Protobuf, gRPC, gRPC-Web, GopherJS
-- Learn to write GopherJS apps with gRPC-Web
+- Learn to write apps with gRPC-Web for Go
 .image protobuf.jpg 70 _
 .image grpc.png 60 _
 .image logo.svg 170 _
@@ -27,7 +27,7 @@ https://jbrandhorst.com
 : Today we will learn about
 : Protobuf, gRPC, gRPC-Web, GopherJS
 : Introduce gRPC-Web for Go
-: Create simple GopherJS app with gRPC-Web
+: Create simple app with gRPC-Web for Go
 : Next up: Lets start with Protobuf
 : 01:00
 
@@ -146,10 +146,11 @@ https://jbrandhorst.com
 .caption Source: [[https://grpc.io][gRPC.io]]
 
 : Brings benefits of gRPC to the browser
-: Official spec
+: Official spec, alpha implementation
 : Protobuf
 : Server-side streaming, no client-side or bidi streaming
-: Next up: Lets take a look at an implementation
+: Waiting for browsers implement Fetch Streams API
+: Next up: Lets take a look at another implementation
 : 05:30
 
 * gRPC-Web Client from Improbable
@@ -189,8 +190,8 @@ https://jbrandhorst.com
 : Transpiler written by Richard Musiol
 : Updated with each Go release, Online playground
 : Supports nearly whole of standard library, including goroutines
-: Community bindings (react, vue, dom, websocket)
 : Used in production by OSS and private companies
+: Community bindings (react, vue, dom, websocket)
 : Next up: So what do we get if we put all of this together?
 : 07:00
 
@@ -201,8 +202,8 @@ https://jbrandhorst.com
 * gRPC-Web for Go
 
 - Brings gRPC-Web to Go
-- Designed for Go-gRPC familiarity
 - Independent generated files
+- Designed for Go-gRPC familiarity
 - Full streaming support (!)
 
 .image logo.svg _ 300
@@ -210,16 +211,15 @@ https://jbrandhorst.com
 
 : Combine GopherJS with gRPC-Web
 : Bindings for Improbable gRPC-web client
-: Designed like Go gRPC clients
-: Generator independent from protoc
-: Streaming through websocket proxy
+: Protoc plugin generates GopherJS code with no JS dependencies
+: Designed to look like Go gRPC clients
+: Streaming through websocket proxy (check demo page)
 : Next up: What can we do with it?
 : 08:00
 
 * Use cases
 
 - GopherJS browser apps
-- GopherJS browser extensions
 - GopherJS _Electron_ apps
 - Custom gRPC Service frontends
 
@@ -227,10 +227,9 @@ https://jbrandhorst.com
 .caption _gRPC-Web_ _gopher_ by [[https://twitter.com/egonelbre][Egon Elbre]]
 
 : Browser apps
-: Browser extensions
 : Electron apps
-: Custom frontends
-: Anywhere frontend talks to backend
+: Custom frontends to gRPC services
+: Essentially, anywhere frontend talks to backend
 : Next up: What does it look like?
 : 08:30
 
@@ -244,21 +243,27 @@ https://jbrandhorst.com
 
 * Demo
 
+Follow along by cloning [[https://github.com/johanbrandhorst/grpcweb-boilerplate]]
+
 : Design interface (involve audience)
 : Attach JS handler to handler click, writing result of query to page
-: 24:00
+: 23:00
 
-* Conclusion
+* We've learned
 
-- Write your own browser app with Go and gRPC
-- Integrate with existing gRPC systems
+- To use gRPC-Web for Go
+- To integrate the browser with existing gRPC systems
 
 .image ecosystem.png _ 975
 .caption Graph by [[https://twitter.com/_myitcv][Paul Jolly]]
 
+: What have we learned?
 : Learned to use Go and gRPC in the browser
-: Shown gRPC integration
-: 24:30
+: Seen the ease at which we can iterate
+: Digram illustrates gRPC-Webs role in ecosystem
+: With gRPC-Web, browser is just another gRPC client
+: With gRPC-Web for Go, writing browser apps is easier than ever
+: 24:00
 
 * Thanks to
 
@@ -275,7 +280,7 @@ https://jbrandhorst.com
 : Dmitry Shuralyov for putting his time into maintaining GopherJS.
 : Travis Cline, the author of the grpc-websocket-proxy which inspired me to create a binary websocket proxy.
 : Paul Jolly for his excellent work on GopherJS and the React bindings and for pushing me to present my own work.
-: YOU! For attending my talk!
+: YOU for attending my talk, hope you enjoyed it, and I'll now take any questions, thank you.
 : 25:00
 
 * Questions?

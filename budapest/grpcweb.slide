@@ -136,7 +136,7 @@ https://jbrandhorst.com
 * g stands for
 
 .image meaning.png _ 450
-.caption Source: [[INSERT SOURCE HERE]]
+.caption Source: [[https://github.com/grpc/grpc/blob/master/doc/g_stands_for.md]]
 
 : In case you were wondering...
 : Next up: Can we use this in the browser?

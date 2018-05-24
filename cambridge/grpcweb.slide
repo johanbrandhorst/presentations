@@ -267,14 +267,14 @@ Follow along by cloning [[https://github.com/johanbrandhorst/grpcweb-boilerplate
 
 * What JS client to base library on
 
-- Official pre-alpha client
+- Official client
 - Improbable client
 
 : Only official client available initially
 : Improbable blog post (April 2017)
 : 41:00
 
-* Official pre-alpha client
+* Official client
 
 Pros:
 
@@ -398,6 +398,20 @@ Cons:
 : Next up: Verifying serialization?
 : 47:30
 
+* Supporting 64bit integers
+
+- JavaScript Number is float64
+- No native support in Protobuf JS library
+
+: JS number type is float64
+
+* Solution
+
+- Write some custom transformations
+
+.code writer.go / WriteZigzag64\(/,+4
+.code reader.go / ReadZigzag64\(/,+4
+
 * Testing package compliance
 
 - Validate `protoc-gen-gopherjs` serialization
@@ -409,7 +423,7 @@ Cons:
 
 * Test using Go gRPC Server as Oracle
 
-.code test_client.go /SingleString/,+10
+.code test_client.go /&types.TestAllTypes{/,+10
 .caption Source: [[https://github.com/johanbrandhorst/protobuf/blob/9cbb0f403e978b23ba340664f346fb9fa0148842/test/client/main.go#L873][GopherJS Client]]
 
 .code test_server.go /EchoAllTypes/,/return/+1

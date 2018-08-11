@@ -1,0 +1,150 @@
+Get Going with WebAssembly
+15th August 2018
+
+Johan Brandhorst
+Backend Developer, InfoSum
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi everyone, I'm Johan, my second talk for the GLUG.
+: InfoSum, data collaboration startup. Using Go for 2.5 years.
+: Open Source projects, Contributed to the Go programming language.
+: Blog.
+: Topic: WebAssembly
+: Quick overview
+: 00:30
+
+* Today we will
+
+- Learn about WebAssembly (WASM)
+- Learn to use WASM from Go
+- Show what is possible today
+- See what will be possible _tomorrow_
+
+: Today we will learn
+: What WebAssembly is
+: Use WebAssembly with Go
+: Show whats possible today
+: See whats possible tomorrow
+: 
+: Lets start with WebAssembly
+: 01:00
+
+* WebAssembly
+
+- Web standard
+- Cross browser
+- JavaScript interface
+
+.image wasm.svg 400 _
+
+: Who's heard of WASM?
+: Web standard Assembly format
+: Cross browser support since early 2018
+: Built for fast numerical calculations
+: JavaScript interface for browser APIs and DOM manipulation
+: Could eventually replace JavaScript
+: 
+: What to do with Go?
+: 02:00
+
+* WebAssembly for Go
+
+.image go1.11_release_notes.png 100 _
+.caption Source: [[https://tip.golang.org/doc/go1.11#wasm][Go 1.11 release notes]]
+
+- Compile Go packages to WASM
+- Implemented by Richard Musiol
+
+: Go 1.11 will ship with WASM support
+: Richard Musiol, the genius behind GopherJS
+: 
+: So how do we use it?
+: 03:00
+
+* Server setup
+
+- Copy necessary files
+    $GOROOT/misc/wasm/wasm_exec.html
+    $GOROOT/misc/wasm/wasm_exec.js
+- Use correct content type
+.code content-type.go /contentTypeSetter/,+7
+
+: Little bit of server setup necessary
+: Copy files
+: Use the correct content type
+: 
+: Enough theory, lets take it for a spin
+: 04:00
+
+* Go WASM examples
+
+* 
+
+.iframe https://stdiopt.github.io/gowasm-experiments/repulsion/ 600 1000
+.caption [[https://stdiopt.github.io/gowasm-experiments/repulsion/][ _Repulsion_]] by [[https://github.com/stdiopt][Luis Figueiredo]]
+
+: Canvas demo
+:
+: So lets take a look at what's coming
+: 10:00
+
+* Future
+
+- Go WASM frameworks
+- Native Browser APIs
+- Threading, Garbage Collection (?)
+- Continual improvements
+
+: Brian Ketelsen, others working on DOM bindings, frameworks
+: Native access to JS objects, browser APIs, threading, garbage collection
+: Continual improvements to JS interface
+: 
+: So lets wrap up
+: 11:00
+
+* We've learned
+
+- To use WebAssymbly with Go
+- What's possible with WASM today
+- What we can look forward to
+
+.image gopherwasm.png 350 _
+.caption Source: [[https://medium.zenika.com/go-1-11-webassembly-for-the-gophers-ae4bb8b1ee03][Go 1.11: WebAssembly for the gophers]]
+
+: What have we learned?
+: Learned about WASM
+: Using WASM with Go
+: What's possible today
+: What will be possible tomorrow
+: 
+: 12:00
+
+* Further reading
+
+- [[https://developer.mozilla.org/en-US/docs/WebAssembly][https://developer.mozilla.org/en-US/docs/WebAssembly]]
+- [[https://blog.scottlogic.com/2018/07/20/wasm-future.html][https://blog.scottlogic.com/2018/07/20/wasm-future.html]]
+
+.image student.png 350 _
+.caption Source: [[https://twitter.com/gopheracademy][GopherAcademy]]
+
+: Some links for further reading.
+: 
+: 13:00
+
+* Thanks to
+
+- [[https://github.com/neelance][Richard Musiol]]
+- Pivotal
+- London Go meetup organizers
+
+: Richard Musiol, singlehandedly implemented WASM for Go.
+: Pivotal for hosting us
+: Organizers for organizing
+: 14:00
+
+* Questions?
+
+.image gopher.png _ 500
+
+.caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]

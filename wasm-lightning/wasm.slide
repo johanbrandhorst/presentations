@@ -7,12 +7,12 @@ Backend Developer, InfoSum
 https://jbrandhorst.com
 
 : Hi everyone, I'm Johan, my second talk for the GLUG.
-: InfoSum, data collaboration startup. Using Go for 2.5 years.
+: InfoSum, data collaboration startup (Hiring!). Using Go for 2.5 years.
 : Open Source projects, Contributed to the Go programming language.
 : Blog.
 : Topic: WebAssembly
-: Quick overview
-: 00:30
+: Next up: Quick overview
+
 
 * Today we will
 
@@ -26,8 +26,7 @@ https://jbrandhorst.com
 : Use WebAssembly with Go
 : Show whats possible today
 : See whats possible tomorrow
-: 
-: Lets start with WebAssembly
+: Next up: Lets start with WebAssembly
 
 * WebAssembly
 
@@ -43,8 +42,7 @@ https://jbrandhorst.com
 : Built for fast numerical calculations
 : JavaScript interface for browser APIs and DOM manipulation
 : Could eventually replace JavaScript
-: 
-: What to do with Go? To answer that lets take a small detour.
+: Next up: What to do with Go? To answer that lets take a small detour.
 
 * GopherJS
 
@@ -59,8 +57,7 @@ https://jbrandhorst.com
 : Written by Richard Musiol
 : Supports most of standard library
 : Many bindings for existing web technologies
-: 
-: So can we use Go with WebAssembly?
+: Next up: So can we use Go with WebAssembly?
 
 * WebAssembly for Go
 
@@ -72,8 +69,7 @@ https://jbrandhorst.com
 : Go 1.11 will ship with WASM support
 : Also written by Richard
 : Support for most of the standard library (including network!)
-: 
-: So how do we use it?
+: Next up: So how do we use it?
 
 * Server setup
 
@@ -87,8 +83,7 @@ https://jbrandhorst.com
 : Copy files
 : wasm_exec.html expects a "test.wasm".
 : Use the correct content type
-: 
-: Enough theory, lets take it for a spin
+: Next up: Enough theory, lets take it for a spin
 
 * Go WASM examples
 
@@ -98,8 +93,7 @@ https://jbrandhorst.com
 .caption [[https://stdiopt.github.io/gowasm-experiments/repulsion/][ _Repulsion_]] by [[https://github.com/stdiopt][Luis Figueiredo]]
 
 : Canvas demo
-:
-: So lets take a look at what we can look forward to
+: Next up: So lets take a look at what we can look forward to
 
 * Future
 
@@ -113,8 +107,7 @@ https://jbrandhorst.com
 : Package level caching developed by community
 : Native access to JS objects, browser APIs, threading, garbage collection
 : Continual improvements to JS interface
-: 
-: So lets wrap up
+: Next up: So lets wrap up
 
 * We've learned
 
@@ -128,22 +121,22 @@ https://jbrandhorst.com
 : What have we learned?
 : Learned about WASM
 : Using WASM with Go
-: What's possible today
-: What will be possible tomorrow
-:
-: Some links for further reading
+: What's possible today (write your website in Go!)
+: What will be possible tomorrow (caching, gc, threading)
+: Next up: Some links for further reading
 
 * Further reading
 
 - [[https://developer.mozilla.org/en-US/docs/WebAssembly][https://developer.mozilla.org/en-US/docs/WebAssembly]]
 - [[https://blog.scottlogic.com/2018/07/20/wasm-future.html][https://blog.scottlogic.com/2018/07/20/wasm-future.html]]
+- Join the Gophers Slack #webassembly channel
 
 .image student.png 350 _
 .caption Source: [[https://twitter.com/gopheracademy][GopherAcademy]]
 
 : Will share slides afterwards.
-:
-: Thanks to
+: Join the gophers slack
+: Next up: Thanks to
 
 * Thanks to
 
@@ -154,6 +147,7 @@ https://jbrandhorst.com
 : Richard Musiol, singlehandedly implemented WASM for Go.
 : Pivotal for hosting us
 : Organizers for organizing, it takes a lot of work!
+: Next up: Questions
 
 * Questions?
 

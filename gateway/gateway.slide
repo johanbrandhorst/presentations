@@ -1,0 +1,68 @@
+Writing REST services for the gRPC curious
+12th December 2018
+
+Johan Brandhorst
+InfoSum
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi everyone, I'm Johan, my third talk for the GLUG.
+: InfoSum, data collaboration startup. Using Go for almost 3 years.
+: Open Source projects, Contributed to the Go programming language.
+: Blog.
+: Topic: Writing REST services
+: Next up: Overview
+
+* Overview
+
+- REST/JSON
+- gRPC
+- Writing REST/JSON with gRPC
+- Demo!
+
+: Gonna be a short talk to give time for the demo
+: Talk a little about REST/JSON
+: Talk a little about gRPC and writing REST/JSON with gRPC and finish with a demo.
+: Next up: Show of hands
+
+* Show of hands
+
+.image rest.png _ 400
+.image grpc.svg _ 400
+
+.caption From [[https://restful.io/rest-api-back-to-basics-c64f282d972][restful.io]] and [[https://grpc.io][grpc.io]]
+
+: Who designed microservice with JSON/REST API surface?
+: Who designed microservice with gRPC API surface?
+: Wanted to design microservice with gRPC API surface?
+: I'm a gRPC guy. But Johan, you say, you can't trivially inspect the message payload on the wire!
+: Can we do something about that? Can we bridge this divide?
+: Next up: gRPC-Gateway intro
+
+* gRPC-Gateway
+
+- Translates JSON/REST requests to gRPC and back.
+- Simple annotation in proto files.
+- Provides Swagger/OpenAPI generator.
+- Widely used within Go gRPC community (CockroachDB, CoreOS)
+
+: Next up: Lets see it in action!
+
+* Demo
+
+: Next up: Thanks to
+
+* Thanks to
+
+- Pusher
+- London Go meetup organizers
+
+: Pusher for hosting us
+: Organizers for organizing, it takes a lot of work!
+: Next up: Questions
+
+* Questions?
+
+.image gopher.png _ 500
+
+.caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]

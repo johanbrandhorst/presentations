@@ -23,6 +23,7 @@ https://jbrandhorst.com
 : Gonna be a short talk to give time for the demo
 : Talk a little about REST/JSON
 : Talk a little about gRPC and writing REST/JSON with gRPC and finish with a demo.
+: At the end of this talk, you'll be able to write REST/JSON and gRPC together!
 : Next up: Show of hands
 
 * Show of hands
@@ -46,6 +47,11 @@ https://jbrandhorst.com
 - Provides Swagger/OpenAPI generator.
 - Widely used within Go gRPC community (CockroachDB, CoreOS)
 
+: The gRPC-gateway project allows you to design gRPC and REST services at the same time
+: It generates a simple reverse proxy that translates on the fly
+: Instrument URL paths and verbs with a simple annotation scheme
+: Provides Swagger/OpenAPI generated files.
+: Used by many large Go gRPC users.
 : Next up: Lets see it in action!
 
 * Demo

@@ -42,9 +42,9 @@ https://jbrandhorst.com
 
 * gRPC-Gateway
 
-- Translates JSON/REST requests to gRPC and back.
-- Simple annotation in proto files.
-- Provides Swagger/OpenAPI generator.
+- Translates JSON/REST requests to gRPC and back
+- Simple annotation in proto files
+- Provides Swagger/OpenAPI generator
 - Widely used within Go gRPC community (CockroachDB, CoreOS)
 
 : The gRPC-gateway project allows you to design gRPC and REST services at the same time

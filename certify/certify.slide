@@ -6,13 +6,7 @@ Backend Developer, InfoSum
 @johanbrandhorst
 https://jbrandhorst.com
 
-: I'm Johan, I work at a data collaboration startup in Basingstoke called InfoSum.
-: I've been a Go developer for almost 3 years.
-: In my spare time I enjoy working on Open Source projects.
-: I'm a Go contributor and I run my own Go blog,
-: writing mostly about things related to my projects and gRPC.
-: My first Hashicorp meetup. Been using Consul and Vault at work for 2 years.
-: Topic: Certificate distribution
+: I'm Johan, I work at a data collaboration startup in Basingstoke called InfoSum. I've been a Go developer for almost 3 years. In my spare time I enjoy working on Open Source projects. I'm a Go contributor and I run my own Go blog, writing mostly about things related to my projects and gRPC. My first Hashicorp meetup. Been using Consul and Vault at work for 2 years. Topic: Certificate distribution.
 : Next up: Lets take a step back
 
 * TLS is the gold standard for backend comms
@@ -23,12 +17,7 @@ https://jbrandhorst.com
 
 .image fuzzy_feeling.jpg _ 700
 
-: TLS is currently the gold standard for securing microservice communications,
-: providing both strong encryption and, with mTLS the assurance that you're talking to
-: the party you think you are.
-: How many of you in this room rely on mTLS to secure your microservice communications?
-: How many of you would _like_ to have an mTLS stack?
-: Life is good
+: TLS is currently the gold standard for securing microservice communications, providing both strong encryption and, with mTLS the assurance that you're talking to the party you think you are. How many of you in this room rely on mTLS to secure your microservice communications? How many of you would _like_ to have an mTLS stack? Life is good.
 : Next up: However, TLS is complicated
 
 * TLS is complicated
@@ -38,12 +27,7 @@ https://jbrandhorst.com
 
 .image complicated.jpg _ 800
 
-: These are some of the acronyms you'll find when reading up about TLS.
-: CHACHA20 POLY1305 is a personal favourite.
-: On top of learning what these all mean,
-: the question of certificate automatic issuing and renewal is often hard to answer.
-: How many of you are guilty of manually renewing the certificate for a critical service?
-: We'll fix it "soon".
+: These are some of the acronyms you'll find when reading up about TLS. CHACHA20 POLY1305 is a personal favourite. On top of learning what these all mean, the question of certificate automatic issuing and renewal is often hard to answer. How many of you are guilty of manually renewing the certificate for a critical service? We'll fix it "soon".
 : Next up: Could we automate this?
 
 * Let's Encrypt solves a lot of problems
@@ -57,12 +41,7 @@ But
 
 .image letsencrypt.png _ 350
 
-: Now, for the publically exposed services Let's Encrypt
-: and certbot have made things significantly easier.
-: Free, automatically renewed certificates has driven
-: the recent trend of increasing encryption on the web.
-: Who has used the autocert package?
-: Unfortunately, it's not possible to use internally, and you can't use it for client side certificates.
+: Now, for the publically exposed services Let's Encrypt and certbot have made things significantly easier. Free, automatically renewed certificates has driven the recent trend of increasing encryption on the web. Who has used the autocert package? Unfortunately, it's not possible to use internally, and you can't use it for client side certificates.
 : Next up: but wait, this is a hashicorp meetup, what are we doing here
 
 * Hashicorp Vault
@@ -73,10 +52,7 @@ But
 
 .image vault.png _ 800
 
-: Who's already using Vault?
-: How many of you have used the Vault PKI backend?
-: Vault is mostly known for secret management but why not use it to automate
-: our TLS certificate distribution?
+: Who's already using Vault? How many of you have used the Vault PKI backend? Vault is mostly known for secret management but why not use it to automate our TLS certificate distribution?
 : Next up: Introducing Certify
 
 * Introducing Certify
@@ -91,14 +67,7 @@ But
 
 .image issuers.png _ 900
 
-: So I wrote a little library for this, and my partner came up with the name Certify.
-: Inspired by autocert, but for internal TLS deployments
-: As easy as Let's Encrypt, configure once, enjoy automatic issuing and renewal.
-: Even supports client side certificate issuing!
-: Lazy issues certificates and bundles simultaneous requests
-: Supports using Hashicorp Vault, Cloudflare CFSSL CA or
-: AWS Certificate Manager Private Certificate Authority for issuing, fun fact, AWS are calling this ACM PCA,
-: which is an ancronym within an acronym.
+: So I wrote a little library for this, and my partner came up with the name Certify. Inspired by autocert, but for internal TLS deployments. As easy as Let's Encrypt, configure once, enjoy automatic issuing and renewal. Even supports client side certificate issuing! Lazy issues certificates and bundles simultaneous requests. Supports using Hashicorp Vault, Cloudflare CFSSL CA or AWS Certificate Manager Private Certificate Authority for issuing. Fun fact, AWS are calling this ACM PCA, which is an ancronym within an acronym.
 : Next up: how is it used?
 
 * Simple API
@@ -106,10 +75,7 @@ But
 .code certify.go /certify.Certify/,+14
 .code certify.go /http.Server/,+5
 
-: The certify struct allows the configuration of general
-: certificate details such as the common name, permanent SANs and IPSANs, and
-: how often the certificates should be renewed. It plugs
-: right into the tls config struct and can be used anywhere this is used.
+: The certify struct allows the configuration of general certificate details such as the common name, permanent SANs and IPSANs, and how often the certificates should be renewed. It plugs right into the tls config struct and can be used anywhere this is used.
 : Next up: using Vault with Certify
 
 * Using the Vault issuer
@@ -119,23 +85,14 @@ But
 - Use the token and role to create a Vault issuer
 .code certify.go /issuer :=/,+13
 
-: Step 1: set up vault PKI. This is left as an exercise to the reader.
-: Step 2: Create a role for your server. Restrict the SANs the role is allowed to use
-: to ensure the server can only present itself as the server it's allowed.
-: Step 3: Use the token and role to create a Vault issuer.
-: The vault issuer will create a new CSR and send it to the Vault server whenever
-: it is called.
-: Pro tip; this makes certificate issuing so easy that you can just issue short
-: lived certificates and ignore the problem of revocation altogether.
+: Step 1: set up vault PKI. This is left as an exercise to the reader. Step 2: Create a role for your server. Restrict the SANs the role is allowed to use to ensure the server can only present itself as the server it's allowed. Step 3: Use the token and role to create a Vault issuer. The vault issuer will create a new CSR and send it to the Vault server whenever it is called. Pro tip; this makes certificate issuing so easy that you can just issue short lived certificates and ignore the problem of revocation altogether.
 : Next up: so, how does it work?
 
 * How does it work?
 
 .image server_side.svg _ 1000
 
-: TLS request comes into the server and we use the ServerName
-: in the request to look up a certificate in the cache or issue
-: a certificate with the specified configuration.
+: TLS request comes into the server and we use the ServerName in the request to look up a certificate in the cache or issue a certificate with the specified configuration.
 : Next up: what have we learnt
 
 * Conclusion
@@ -145,9 +102,7 @@ But
 
 .image fuzzy_feeling.jpg _ 700
 
-: We've learnt to configure our TLS configuration to automatically
-: distribute certificates as necessary. We're a little bit closer
-: to that fuzzy feeling.
+: We've learnt to configure our TLS configuration to automatically distribute certificates as necessary. We're a little bit closer to that fuzzy feeling.
 : Next up: Thanks to
 
 * Thanks to
@@ -159,6 +114,5 @@ But
 
 .caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]
 
-: Monzo for hosting us
-: Organizers for organizing, it takes a lot of work!
+: Monzo for hosting us. Organizers for organizing, it takes a lot of work!
 : Next up: Questions

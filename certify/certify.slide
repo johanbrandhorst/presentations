@@ -3,7 +3,6 @@ Automate your Go TLS certificates with Vault PKI
 
 Johan Brandhorst
 Backend Developer, InfoSum
-johan.brandhorst@gmail.com
 @johanbrandhorst
 https://jbrandhorst.com
 
@@ -53,7 +52,6 @@ https://jbrandhorst.com
 - Automatically renewed certificates
 - [[golang.org/x/crypto/acme/autocert][golang.org/x/crypto/acme/autocert]]
 But
-
 - Not possible to use for internal services
 - No client side certificates
 
@@ -90,6 +88,8 @@ But
 - Lazy requests certificates as necessary
 - Requests are deduplicated
 - Supports Vault, CFSSL and AWS Certificate Manager PCA
+
+.image issuers.png _ 900
 
 : So I wrote a little library for this, and my partner came up with the name Certify.
 : Inspired by autocert, but for internal TLS deployments
@@ -131,29 +131,24 @@ But
 
 * How does it work?
 
-.image server_side.svg _ 400
+.image server_side.svg _ 1000
 
 : TLS request comes into the server and we use the ServerName
 : in the request to look up a certificate in the cache or issue
 : a certificate with the specified configuration.
-
-* Client side
-
-.image client_side.svg _ 360
-
-: Client side is a little different, it looks up against the configured
-: common name since there's no clear way to automatically identify a client.
 : Next up: what have we learnt
 
 * Conclusion
 
 - We've learnt to set up our internal Go apps with automatic client and server certificate distribution
+- One step closer to that fuzzy feeling
 
 .image fuzzy_feeling.jpg _ 700
 
 : We've learnt to configure our TLS configuration to automatically
 : distribute certificates as necessary. We're a little bit closer
 : to that fuzzy feeling.
+: Next up: Thanks to
 
 * Thanks to
 

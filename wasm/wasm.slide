@@ -53,7 +53,7 @@ https://jbrandhorst.com
 
 .image gowasm.svg
 
-: Go 1.11 shipped with WASM support. Also written by Richard. Support for most of the standard library (including network!)
+: Go 1.11 shipped with WASM support. Also written by Richard. Support for most of the standard library (including network!). Focused primarily on running in the browser.
 : Next up: There's another Go WASM implementation
 : 05:00
 
@@ -102,9 +102,11 @@ https://jbrandhorst.com
 - Native Browser APIs
 - Threading, Garbage Collection (?)
 - Continual improvements
-- TinyGo
+- Run anywhere
 
-: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs, threading, garbage collection. Continual improvements to JS interface. TinyGo alternative stack.
+: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs,
+threading, garbage collection. Continual improvements to JS interface. Run compiled Go code on any web assembly virtual
+machine.
 : Next up: Some links for further reading
 
 * Further reading

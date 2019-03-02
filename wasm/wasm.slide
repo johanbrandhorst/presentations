@@ -1,0 +1,120 @@
+Get Going with WebAssembly
+25th March 2019
+
+Johan Brandhorst
+Backend Developer, InfoSum
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi everyone, I'm Johan. Work at InfoSum, data collaboration startup. Using Go for 3 years now. Spare time Open Source projects, Contributed to the Go programming language. Blog. Topic: WebAssembly.
+: Next up: Quick overview
+: 00:30
+
+* Today we will
+
+- Learn about WebAssembly (WASM)
+- Learn to use WASM from Go
+- Show what is possible today
+- See what will be possible _tomorrow_
+
+: Today we will learn. What WebAssembly is. Use WebAssembly with Go. Show whats possible today. See whats possible tomorrow!
+: Next up: Lets start with WebAssembly
+: 01:30
+
+* WebAssembly
+
+- Web standard binary executable format
+- Cross browser
+- JavaScript interface
+
+.image wasm.svg 400 _
+
+: Who's heard of WASM? Web standard Assembly format. Cross browser support since early 2018. Built for fast numerical calculations. JavaScript interface for browser APIs and DOM manipulation. Could eventually replace JavaScript.
+: Next up: What to do with Go? To answer that lets take a small detour.
+: 03:00
+
+* GopherJS
+
+- Tool for compiling Go to JavaScript
+- Existed since 2015
+- Written by Richard Musiol ([[https://twitter.com/neelance][@neelance]])
+
+.image gopherjs.svg
+
+: In 2016 Dmitri Shuralyov presented about GopherJS on this scene. GopherJS has allowed Go in the browser since 2015. Tool for compiling Go to JavaScript. Written by Richard Musiol. Supports most of standard library. Many bindings for existing web technologies.
+: Next up: So can we use Go with WebAssembly?
+: 04:00
+
+* WebAssembly for Go
+
+- Experimental support since Go 1.11
+- Compile Go packages to WebAssembly
+- _Also_ written by Richard Musiol
+
+.image gowasm.svg
+
+: Go 1.11 shipped with WASM support. Also written by Richard. Support for most of the standard library (including network!)
+: Next up: There's another Go WASM implementation
+: 05:00
+
+* TinyGo
+
+- Created by [[https://aykevl.nl/][Ayke van Laëthem]]
+- Goal: bring Go to microcontrollers
+- Built on LLVM compiler stack
+- Produces _tiny_ binaries
+- Supports WebAssembly
+- Very early days
+
+.image tinygo-logo.png _ 300
+
+: TinyGo! Created by Ayke van Laethem primarily for using Go on microcontrollers, it very serendipituously took the Go webassembly by storm when the first demo showed that it could produce tiny output code. Still very early days but a very exciting project to keep an eye on.
+: Next up: So how do we use it?
+: 06:00
+
+* Server setup
+
+- Copy necessary files
+    $GOROOT/misc/wasm/wasm_exec.html
+    $GOROOT/misc/wasm/wasm_exec.js
+- Use correct content type
+.code content-type.go /contentTypeSetter/,+7
+
+: Little bit of server setup necessary. Copy files. wasm_exec.html expects a "test.wasm". TinyGo has its own wasm_exec.js, but can be run with the stdlib wasm_exec.html. Use the correct content type.
+: Next up: Enough theory, lets take it for a spin
+: 07:00
+
+* Go WASM examples
+
+: Run through examples hello, channels, js, fetch and gRPC-Web fork
+
+* 
+
+.iframe https://stdiopt.github.io/gowasm-experiments/repulsion/ 600 1000
+.caption [[https://stdiopt.github.io/gowasm-experiments/repulsion/][ _Repulsion_]] by [[https://github.com/stdiopt][Luis Figueiredo]]
+
+: Canvas demo
+: Next up: So lets take a look at what we can look forward to
+
+* Future
+
+- Go WASM frameworks
+- Native Browser APIs
+- Threading, Garbage Collection (?)
+- Continual improvements
+- TinyGo
+
+: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs, threading, garbage collection. Continual improvements to JS interface. TinyGo alternative stack.
+: Next up: Some links for further reading
+
+* Further reading
+
+- [[https://developer.mozilla.org/en-US/docs/WebAssembly][https://developer.mozilla.org/en-US/docs/WebAssembly]]
+- [[https://blog.scottlogic.com/2018/07/20/wasm-future.html][https://blog.scottlogic.com/2018/07/20/wasm-future.html]]
+- Join the Gophers Slack #webassembly channel
+
+.image student.png 350 _
+.caption Source: [[https://twitter.com/gopheracademy][GopherAcademy]]
+
+: Join the gophers slack
+

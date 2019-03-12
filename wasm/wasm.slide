@@ -2,11 +2,11 @@ Get Going with WebAssembly
 25th March 2019
 
 Johan Brandhorst
-Backend Developer, InfoSum
+InfoSum
 @johanbrandhorst
 https://jbrandhorst.com
 
-: Hi everyone, I'm Johan. Work at InfoSum, data collaboration startup. Using Go for 3 years now. Spare time Open Source projects, Contributed to the Go programming language. Blog. Topic: WebAssembly.
+: What if we could write idiomatic Go, build it and run it in the browser, just like any other Go program? Can we do that?
 : Next up: Quick overview
 : 00:30
 
@@ -16,6 +16,9 @@ https://jbrandhorst.com
 - Learn to use WASM from Go
 - Show what is possible today
 - See what will be possible _tomorrow_
+
+.image witch.svg 300 _
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]]
 
 : Today we will learn. What WebAssembly is. Use WebAssembly with Go. Show whats possible today. See whats possible tomorrow!
 : Next up: Lets start with WebAssembly
@@ -61,14 +64,12 @@ https://jbrandhorst.com
 
 - Created by [[https://aykevl.nl/][Ayke van Laëthem]]
 - Goal: bring Go to microcontrollers
-- Built on LLVM compiler stack
 - Produces _tiny_ binaries
 - Supports WebAssembly
-- Very early days
 
-.image tinygo-logo.png _ 300
+.image tinygo-logo.png _ 350
 
-: TinyGo! Created by Ayke van Laethem primarily for using Go on microcontrollers, it very serendipituously took the Go webassembly by storm when the first demo showed that it could produce tiny output code. Still very early days but a very exciting project to keep an eye on.
+: TinyGo! Created by Ayke van Laethem primarily for using Go on microcontrollers, it very serendipituously took the Go webassembly by storm when the first demo showed that it could produce tiny output code. Built on the LLVM stack. Still very early days but a very exciting project to keep an eye on. Doesn't have garbage collection.
 : Next up: So how do we use it?
 : 06:00
 
@@ -104,9 +105,10 @@ https://jbrandhorst.com
 - Continual improvements
 - Run anywhere
 
-: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs,
-threading, garbage collection. Continual improvements to JS interface. Run compiled Go code on any web assembly virtual
-machine.
+.image scientist.svg 250 _
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]]
+
+: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs, threading, garbage collection. Continual improvements to JS interface. Run compiled Go code on any web assembly virtual machine.
 : Next up: Some links for further reading
 
 * Further reading

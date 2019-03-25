@@ -6,8 +6,7 @@ InfoSum
 @johanbrandhorst
 https://jbrandhorst.com
 
-: What if we could write idiomatic Go, build it and run it in the browser, just like any other Go program? Can we do that?
-: Next up: Quick overview
+: What if we could write idiomatic Go, build it and run it in the browser, just like any other Go program? Can we do that? Lets find out!
 : 00:30
 
 * Today we will
@@ -20,9 +19,9 @@ https://jbrandhorst.com
 .image witch.svg 300 _
 .caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]]
 
-: Today we will learn. What WebAssembly is. Use WebAssembly with Go. Show whats possible today. See whats possible tomorrow!
+: Today we will learn what WebAssembly is, how to use WebAssembly with Go, show whats possible today and briefly look at what will be possible tomorrow!
 : Next up: Lets start with WebAssembly
-: 01:30
+: 01:00
 
 * WebAssembly
 
@@ -32,21 +31,21 @@ https://jbrandhorst.com
 
 .image wasm.svg 400 _
 
-: Who's heard of WASM? Web standard Assembly format. Cross browser support since early 2018. Built for fast numerical calculations. JavaScript interface for browser APIs and DOM manipulation. Could eventually replace JavaScript.
+: What is WebAssembly? It is a Web standard Assembly format. It has had cross browser support since early 2018. It was originally built for fast numerical calculations. It has a JavaScript interface to access exiting browser APIs and perform DOM manipulation. It could eventually replace JavaScript altogether.
 : Next up: What to do with Go? To answer that lets take a small detour.
-: 03:00
+: 02:00
 
 * GopherJS
 
-- Tool for compiling Go to JavaScript
+- Compiles Go to JavaScript
 - Existed since 2015
 - Written by Richard Musiol ([[https://twitter.com/neelance][@neelance]])
 
 .image gopherjs.svg
 
-: In 2016 Dmitri Shuralyov presented about GopherJS on this scene. GopherJS has allowed Go in the browser since 2015. Tool for compiling Go to JavaScript. Written by Richard Musiol. Supports most of standard library. Many bindings for existing web technologies.
+: GopherJS has allowed Go in the browser since 2015. It's a tool for compiling Go to JavaScript. It was written by Richard Musiol. It supports most of standard library. There are many community bindings for existing web technologies, such as websockets, local storage and others. Very easy to use (see graphic).
 : Next up: So can we use Go with WebAssembly?
-: 04:00
+: 03:00
 
 * WebAssembly for Go
 
@@ -56,9 +55,9 @@ https://jbrandhorst.com
 
 .image gowasm.svg
 
-: Go 1.11 shipped with WASM support. Also written by Richard. Support for most of the standard library (including network!). Focused primarily on running in the browser.
-: Next up: There's another Go WASM implementation
-: 05:00
+: Go 1.11 shipped with experimental WASM support, which means it doesn't have the same backward compatibility guarantees as the rest of the standard library. It was also written by Richard. It supports most of the standard library (including net/http client requests, which we'll see more about later!). The current implementation is focused primarily on running in the browser. As we'll see it produces quite large binaries, because of the heavy Go runtime, difficulties of dead code elimination in the face of runtime reflection, and generally the current WebAssembly spec being hard to efficiently adapt to the compilers output. See build instructions.
+: Next up: There's another Go compiler that supports WASM
+: 04:00
 
 * TinyGo
 
@@ -69,9 +68,9 @@ https://jbrandhorst.com
 
 .image tinygo-logo.png _ 350
 
-: TinyGo! Created by Ayke van Laethem primarily for using Go on microcontrollers, it very serendipituously took the Go webassembly by storm when the first demo showed that it could produce tiny output code. Built on the LLVM stack. Still very early days but a very exciting project to keep an eye on. Doesn't have garbage collection.
+: TinyGo! Created by Ayke van Laethem primarily for using Go on microcontrollers, it very serendipituously took the Go webassembly community by storm when the first webassembly demo showed that it could produce tiny outputs. Built on the LLVM stack. Still very early days but a very exciting project to keep an eye on. Doesn't have garbage collection.
 : Next up: So how do we use it?
-: 06:00
+: 05:00
 
 * Server setup
 
@@ -81,44 +80,41 @@ https://jbrandhorst.com
 - Use correct content type
 .code content-type.go /contentTypeSetter/,+7
 
-: Little bit of server setup necessary. Copy files. wasm_exec.html expects a "test.wasm". TinyGo has its own wasm_exec.js, but can be run with the stdlib wasm_exec.html. Use the correct content type.
+: Little bit of server setup necessary. Make sure you copy the relevant files. wasm_exec.html expects a "test.wasm". TinyGo has its own wasm_exec.js, but can be run with the stdlib wasm_exec.html. Use the correct content type.
 : Next up: Enough theory, lets take it for a spin
-: 07:00
+: 06:00
 
 * Go WASM examples
 
-: Run through examples hello, channels, js, fetch and gRPC-Web fork
-
-* 
-
-.iframe https://stdiopt.github.io/gowasm-experiments/repulsion/ 600 1000
-.caption [[https://stdiopt.github.io/gowasm-experiments/repulsion/][ _Repulsion_]] by [[https://github.com/stdiopt][Luis Figueiredo]]
-
-: Canvas demo
-: Next up: So lets take a look at what we can look forward to
+: Run through examples hello, js, fetch and gRPC-Web fork
+: 16:30
 
 * Future
 
-- Go WASM frameworks
+- Auto-generated DOM bindings
+- Go WASM frameworks (Vecty, others)
 - Native Browser APIs
 - Threading, Garbage Collection (?)
 - Continual improvements
-- Run anywhere
+- Run anywhere (!)
 
-.image scientist.svg 250 _
+.image scientist.svg 200 _
 .caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]]
 
-: Members of the communiy working on auto-generated DOM bindings, frameworks. Native access to JS objects, browser APIs, threading, garbage collection. Continual improvements to JS interface. Run compiled Go code on any web assembly virtual machine.
 : Next up: Some links for further reading
+: 17:30
 
 * Further reading
 
+- [[https://github.com/johanbrandhorst/wasm-experiments][https://github.com/johanbrandhorst/wasm-experiments]]
+- [[https://github.com/johanbrandhorst/grpcweb-wasm-example][https://github.com/johanbrandhorst/grpcweb-wasm-example]]
 - [[https://developer.mozilla.org/en-US/docs/WebAssembly][https://developer.mozilla.org/en-US/docs/WebAssembly]]
 - [[https://blog.scottlogic.com/2018/07/20/wasm-future.html][https://blog.scottlogic.com/2018/07/20/wasm-future.html]]
-- Join the Gophers Slack #webassembly channel
+- Join the Gophers Slack #webassembly, #tinygo channels
 
-.image student.png 350 _
+.image student.png 280 _
 .caption Source: [[https://twitter.com/gopheracademy][GopherAcademy]]
 
 : Join the gophers slack
+: So can we finally run and use Go in the browser? Yes, but not without caveats. The future is very exciting!
 

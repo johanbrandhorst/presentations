@@ -6,7 +6,7 @@ InfoSum
 @johanbrandhorst
 https://jbrandhorst.com
 
-: I'm Johan, I'm currently living and working in the UK. I'm a maintainer of the grpc-gateway, grpc-web and tinygo. I've contributed to the Go standard library, I run a blog writing about Go and I'm back in the motherland to attend a floorball camp with the UK national team. Today I want to answer the question; What is WebAssembly, and what does it have to do with Go?
+: I'm Johan, I'm Swedish but I currently live and work in the UK. I'm a maintainer of the grpc-gateway, grpc-web and tinygo. I've contributed to the Go standard library, I run a blog writing about Go and I'm back in the motherland to attend a floorball camp with the UK national team. Today I want to answer the question; What is WebAssembly, and how can we use it with Go?
 : Next up: Overview
 : 00:30
 
@@ -32,7 +32,7 @@ https://jbrandhorst.com
 
 .image wasm.svg 400 _
 
-: What is WebAssembly? It is a Web standard Assembly format. It has had cross browser support since early 2018. It was originally built for fast numerical calculations. It has a JavaScript interface to access exiting browser APIs and perform DOM manipulation. It could eventually replace JavaScript altogether.
+: What is WebAssembly? It is a Web standard Assembly format. It has had cross browser support since early 2018. It was originally built for fast numerical calculations. It has a JavaScript interface to access existing browser APIs and perform DOM manipulation. It could eventually replace JavaScript altogether.
 : Next up: What to do with Go? To answer that lets take a small detour.
 : 02:00
 
@@ -97,7 +97,7 @@ https://jbrandhorst.com
 - Native Browser APIs
 - Threading, Garbage Collection (?)
 - Continual improvements
-- Run anywhere (!)
+- WASI, Run anywhere (!)
 
 .image scientist.svg 200 _
 .caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]]

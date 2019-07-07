@@ -26,26 +26,26 @@ https://jbrandhorst.com
 * WebAssembly
 
 - Binary instruction format
-- W3C WebAssembly Working Group
+- W3C WebAssembly Working Group, Community Group
 - asm.js, NativeClient (NaCl)
 
 .image w3c.svg 350 _
 .caption Source: [[https://www.w3.org/Consortium/Legal/logo-usage-20000308][Official W3C logo]].
 
-: What is WebAssembly? It is a web standard binary instruction format, like x86 but developed for the web, by the World Wide Web Consortium, with representatives from all 4 major browsers. It grew out of the asm.js project, which proved that languages like C/C++ could be transpiled to JS and run in the browser. Google developed the Native Client (NaCl), but it was never implemented by any other browsers. WebAssembly was designed to be fast to interpret, fast to execute and of course, secure to run.
+: What is WebAssembly? It is a web standard binary instruction format, like x86 but developed for the web, by the World Wide Web Consortium, with representatives from all 4 major browsers, and with community contribution. It grew out of the asm.js project, which proved that languages like C/C++ could be transpiled to JS and run in the browser. Google developed the Native Client (NaCl), but it was never implemented by any other browsers. WebAssembly was designed to be fast to interpret, fast to execute and of course, secure to run.
 : Next up: Where can we run it?
 : 01:30
 
 * Runtimes
 
 - Chrome, Firefox, Safari, Edge and others
-- Interpreters (`wasmer`, `wagon`, `life`, `lucent`, `WAVM`, more)
+- Runtimes (`wasmer`, `wasmtime`, `wagon`, `life`, `lucent`, `WAVM`, more)
 - Bare Metal (?)
 
 .image wasm.svg 350 _
 .caption Source: Official WASM logo from the [[https://github.com/carlosbaraza/web-assembly-logo][github repo]].
 
-: It has been supported in Chrome, Firefox, Safari and Edge since late 2017, with every modern browser that matters now supporting it. A smattering of interpreters written in a variety of languages have appeared, with wagon and life being the larger Go based WebAssembly runtime projects. The prevalence of interpreters means that WebAssembly isn't just a language for the web anymore, but runnable anywhere the interpreters can run. We might even end up with bare metal chips implementing a WebAssembly interpreter. All of that is still a way off though, and today we will focus on using WebAssembly in the browser.
+: It has been supported in Chrome, Firefox, Safari and Edge since late 2017, with every modern browser that matters now supporting it. A smattering of runtimes written in a variety of languages have appeared, with wagon and life being the larger Go based WebAssembly runtime projects. The prevalence of runtimes means that WebAssembly isn't just a language for the web anymore, but runnable anywhere the runtimes can run. We might even end up with bare metal chips implementing a WebAssembly interpreter. All of that is still a way off though, and today we will focus on using WebAssembly in the browser.
 : Next up: How can we interact with the world from WebAssembly?
 : 02:30
 
@@ -57,7 +57,7 @@ https://jbrandhorst.com
 .image platforms.png 400 _
 .caption WebAssembly logo from official WebAssembly logo [[https://github.com/carlosbaraza/web-assembly-logo][github repo]], WASI logo from the [[https://github.com/WebAssembly/WASI][github repo]].
 
-: WebAssembly in browsers ship with a JavaScript interface to access existing browser APIs to perform tasks such as DOM manipulation, making network calls and using WebGL, to name a few. We'll take a look at exactly how that works with Go a bit later on. Another interesting platform interface is the recently announced WebAssembly System Interface, AKA WASI. Initially designed by Mozilla and Fastly, it's being standardized by a WebAssembly working group. It is designed to be used when compiling WebAssembly for running outside the browser, and provides a syscall like interface to system features files and network sockets. It's currently still in development, but provisional support for WASI is present in Fastly's WebAssembly runtime lucent.
+: WebAssembly in browsers ship with a JavaScript interface to access existing browser APIs to perform tasks such as DOM manipulation, making network calls and using WebGL, to name a few. We'll take a look at exactly how that works with Go a bit later on. Another interesting platform interface is the recently announced WebAssembly System Interface, AKA WASI. Initially designed by Mozilla and Fastly, it's being standardized by a WebAssembly working group. It is designed to be used when compiling WebAssembly for running outside the browser, and provides a syscall like interface to system features files and network sockets. It's currently still in development, but provisional support for WASI is present in Fastly's WebAssembly runtime lucent and wasmtime.
 : Next up: What does this have to do with Go? Lets take a step back.
 : 04:00
 
@@ -65,7 +65,7 @@ https://jbrandhorst.com
 
 - Compiles Go to JavaScript
 - Existed since 2015
-- Written by Richard Musiol ([[https://twitter.com/neelance][@neelance]])
+- Written by Richard Musiol ([[https://github.com/neelance][@neelance]])
 
 .image gopherjs.svg
 

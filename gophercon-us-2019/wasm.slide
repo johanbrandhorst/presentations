@@ -45,7 +45,7 @@ https://jbrandhorst.com
 .image wasm.svg 350 _
 .caption Source: Official WASM logo from the [[https://github.com/carlosbaraza/web-assembly-logo][github repo]].
 
-: It has been supported in Chrome, Firefox, Safari and Edge since late 2017, with every modern browser that matters now supporting it. A smattering of runtimes written in a variety of languages have appeared, with wagon and life being the larger Go based WebAssembly runtime projects. The prevalence of runtimes means that WebAssembly isn't just a language for the web anymore, but runnable anywhere the runtimes can run. We might even end up with bare metal chips implementing a WebAssembly interpreter. All of that is still a way off though, and today we will focus on using WebAssembly in the browser.
+: It has been supported in Chrome, Firefox, Safari and Edge since late 2017, with every modern browser that matters now supporting it. A smattering of runtimes written in a variety of languages have appeared, with wagon and life being the larger Go based WebAssembly runtime projects. The prevalence of runtimes means that WebAssembly isn't just a language for the web anymore, but runnable anywhere the runtimes can run. We might even end up with bare metal chips implementing a WebAssembly runtime. All of that is still a way off though, and today we will focus on using WebAssembly in the browser.
 : Next up: How can we interact with the world from WebAssembly?
 : 02:30
 
@@ -57,7 +57,7 @@ https://jbrandhorst.com
 .image platforms.png 400 _
 .caption WebAssembly logo from official WebAssembly logo [[https://github.com/carlosbaraza/web-assembly-logo][github repo]], WASI logo from the [[https://github.com/WebAssembly/WASI][github repo]].
 
-: WebAssembly in browsers ship with a JavaScript interface to access existing browser APIs to perform tasks such as DOM manipulation, making network calls and using WebGL, to name a few. We'll take a look at exactly how that works with Go a bit later on. Another interesting platform interface is the recently announced WebAssembly System Interface, AKA WASI. Initially designed by Mozilla and Fastly, it's being standardized by a WebAssembly working group. It is designed to be used when compiling WebAssembly for running outside the browser, and provides a syscall like interface to system features files and network sockets. It's currently still in development, but provisional support for WASI is present in Fastly's WebAssembly runtime lucent and wasmtime.
+: WebAssembly in browsers ship with a JavaScript interface to access existing browser APIs to perform tasks such as DOM manipulation, making network calls and using WebGL, to name a few. We'll take a look at exactly how that works with Go a bit later on. Another interesting platform interface is the recently announced WebAssembly System Interface, AKA WASI. Initially designed by Mozilla and Fastly, it's being standardized by a WebAssembly working group. It is designed to be used when compiling WebAssembly for running outside the browser, and provides a syscall like interface to system features like files and network sockets. It's currently still in development, but provisional support for WASI is present in Fastly's WebAssembly runtime lucent and Mozilla's wasmtime.
 : Next up: What does this have to do with Go? Lets take a step back.
 : 04:00
 
@@ -69,7 +69,7 @@ https://jbrandhorst.com
 
 .image gopherjs.svg
 
-: GopherJS has allowed Go in the browser since 2015. It's a tool for compiling Go to JavaScript. It was written by Richard Musiol. It supports most of standard library. There are many community bindings for existing web technologies, such as websockets, local storage and others. Very easy to use (see graphic). It remains the most mature way of running Go in the browser, and is used by open source projects such as perkeep. This handy graphic shows the steps involved in producing JS with the gopherjs compiler.
+: GopherJS has allowed Go in the browser since 2015. It's a tool for compiling Go to JavaScript. It was written by Richard Musiol. It supports most of standard library. There are many community bindings for existing web technologies, such as websockets, local storage and others. Very easy to use (see graphic). It remains the most mature way of running Go in the browser, and is used by open source projects such as perkeep.
 : Next up: What about WebAssembly?
 : 04:30
 
@@ -82,7 +82,7 @@ https://jbrandhorst.com
 .image gopher_webassembly.png _ 300
 .caption Source: [[https://react-etc.net/entry/webassembly-support-lands-in-go-language-golang-wasm-js][react-etc.net]].
 
-: In early 2017, Brad Fitzpatrick opened a tracking issue for implementing a WebAssembly target in Go. The conversation quickly took off but no real concensus was found for the best way to implement it in the existing compiler codebase. The WebAssembly spec is notably missing the goto keyword, which makes implementing control flow harder, and this hindered initial work. However, by November Richard Musiol announced that he had started work on implementing a WebAssembly target for the go compiler, and it shipped in Go 1.11. Richard deserves a lot of credit for his amazing work in bringing this novel architecture to Go on his own, in his spare time.
+: In early 2017, Brad Fitzpatrick opened a tracking issue for implementing a WebAssembly target in Go. The conversation quickly took off but no real concensus was found for the best way to implement it in the existing compiler codebase. The WebAssembly spec is notably missing the goto keyword, which makes implementing control flow harder, and this hindered initial work. However, by November Richard Musiol, the author of GopherJS, announced that he had started work on implementing a WebAssembly target for the go compiler, and it shipped in Go 1.11, roughly 9 months later. Richard deserves a lot of credit for his amazing work in bringing this novel architecture to Go on his own, in his spare time.
 : Next up: Current status of Go implementation
 : 06:00
 
@@ -175,7 +175,7 @@ https://jbrandhorst.com
 .image testing.svg 350 _
 .caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
 
-: You might think it'd be hard to run tests when it requires a WebAssembly interpreter to run the code, but it's not so bad! The Go standard library comes with a executable that can be used to run the tests against a Node environment, which is how the standard library tests are run. There's a third party package developed by Agniva Sarker which allows us to run compiled WebAssembly in a chromium headless window directly.
+: You might think it'd be hard to run tests when it requires a WebAssembly runtime to run the code, but it's not so bad! The Go standard library comes with a executable that can be used to run the tests against a Node environment, which is how the standard library tests are run. There's a third party package developed by Agniva Sarker which allows us to run compiled WebAssembly in a chromium headless window directly.
 : Next up: lets look at the Go test demo
 : 21:00
 
@@ -213,7 +213,7 @@ https://jbrandhorst.com
 .image vecty.svg 300 _
 .caption Source: [[https://github.com/vecty/vecty-logo][Vecty]].
 
-: Vecty has been around on the Go-on-the-web scene for a while and was purpose written for creating Go web apps with GopherJS. It was created by Stephen Gutekanst and Richard Musiol and recently been underwent a rewrite to make it compatible with WebAssembly. It uses a React-like interface with structs declaring styling, functionality and composition. It's currently under the GopherJS github org but may be moved to it's own in the near future.
+: Vecty has been around on the Go-on-the-web scene for a while and was purpose written for creating Go web apps with GopherJS. It was created by Stephen Gutekanst and Richard Musiol and recently underwent a rewrite to make it compatible with WebAssembly. It uses a React-like interface with structs declaring styling, functionality and composition. It's currently under the GopherJS github org but may be moved to it's own in the near future.
 : Next up: Lets take a look at an example
 : 28:00
 
@@ -229,7 +229,7 @@ https://jbrandhorst.com
 - Comprehensive dev environment
 - [[https://play.vugu.org/][https://play.vugu.org/]]
 
-: Where Vecty is a framework inspired by React, Vugu is takes a lot of cues from the Vue JavaScript framework, as is evident by its in-markup logic and bindings. It uses a custom file format that is a superset of HTML, coupled with a code generator that produces the final code that gets compiled. It has put a lot of effort into the development environment, which features like automatic rebuilds and reloading on code changes. You can try it out on the online playground.
+: Where Vecty is a framework inspired by React, Vugu is takes a lot of cues from the Vue JavaScript framework, as is evident by its in-markup logic and bindings. It uses a custom file format that is a superset of HTML, coupled with a code generator that produces the final code that gets compiled. It has put a lot of effort into the development environment, with features like automatic rebuilds and reloading on code changes. You can try it out on the online playground.
 : Next up: Lets take a look at the demo
 : 32:00
 
@@ -308,7 +308,7 @@ https://jbrandhorst.com
 .image wasi.png 400 _
 .caption WASI logo from the [[https://github.com/WebAssembly/WASI][github repo]].
 
-: We already discussed WASI briefly, but I wanted to come back to it again because it's one of the things I'm the most excited for. Imagine compiling an application once and distributing that binary to linux, mac, windows, android, iOS, web, anywhere you have a WebAssembly interpreter.
+: We already discussed WASI briefly, but I wanted to come back to it again because it's one of the things I'm the most excited for. Imagine compiling an application once and distributing that binary to linux, mac, windows, android, iOS, web, anywhere you have a WebAssembly runtime.
 : Next up: So where does this leave us?
 : 43:30
 

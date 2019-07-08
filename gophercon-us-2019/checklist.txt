@@ -1,0 +1,8 @@
+* Change $PS1
+* Change VS code theme
+* Change VS code zoom level
+* start presentation `present -notes -base .`
+* open chromium at http://127.0.0.1:3999
+* open speaker notes
+* open firefox incognito at http://localhost:8080
+* hide firefox bookmarks bar

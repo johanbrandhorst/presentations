@@ -1,3 +1,4 @@
+* Open VS code with wasm-experiments
 * Change $PS1
 * Change VS code theme
 * Change VS code zoom level

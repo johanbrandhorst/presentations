@@ -267,7 +267,7 @@ https://jbrandhorst.com
 .image tinygo-logo.png _ 350
 .caption Source: [[https://github.com/tinygo-org/tinygo][TinyGo]].
 
-: Enter TinyGo. It was created by Ayke van Laethem primarily for using Go on microcontrollers. It took the Go WebAssembly community by storm when the first WebAssembly demo showed that it could produce tiny outputs. It's built on the LLVM stack, and it's still very early days but a very exciting project to keep an eye on. It added a garbage collector in the latest release, which takes it closer to being ready for general use.
+: Enter TinyGo. It was created by Ayke van Laethem primarily for using Go on microcontrollers. It took the Go WebAssembly community by storm when the first WebAssembly demo showed that it could produce tiny outputs. It's built on the LLVM stack, and it's still very early days but a very exciting project to keep an eye on. It added a garbage collector in the latest release, which takes it closer to being ready for general use. If you want to learn more about TinyGo, make sure to watch Ron Evans talk tomorrow morning!
 : Next up: Lets take a look at some examples.
 : 37:30
 

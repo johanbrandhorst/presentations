@@ -48,7 +48,7 @@ https://jbrandhorst.com
 
 .image malformed.jpg _ 400
 
-: As anyone who has ever had to quickly push a configuration fix to your JSON configured service knows, trailing commas are forbidden in JSON. I wish I was joking in saying that this is a big problem, but entire new formats have been developed to deal with this. There's also no support for comments. It's unnecessarily verbose on the wire, but compression can help mitigate this. In large deployments, the constant marshalling and unmarshalling of JSON is a constant strain on response latency. Most importantly, it is not typed enough, and there is no single way to define the interface types. OpenAPI is an option, but it's not globally adopted.
+: As anyone who has ever had to quickly push a configuration fix to your JSON configured service knows, trailing commas are forbidden in JSON. I wish I was joking in saying that this is a big problem, but entire new formats have been developed to deal with this. There's also no support for comments. It's unnecessarily verbose on the wire, but compression can help mitigate this. In large deployments, the constant marshalling and unmarshalling of JSON is a constant strain on response latency. Most importantly, it is not typed enough, and there is no single way to define the interface types. OpenAPI is an option, but it's not globally adopted. Most of these problems stem from the fact that JSON was designed to be human-readable, but also effective for a machine to use. These two are, unfortunately, not compatible.
 : Next up: Fortunately, there's a better option
 : 02:30
 
@@ -64,7 +64,7 @@ https://jbrandhorst.com
 
 : Protocol buffers have recently become more and more popular for use with internal APIs, and for good reason. They provide an efficient wire encoding, cheap marshalling, good type support and a single source of truth for your API description. Generators use the protobuf definitions to produce language specific code. Projects such as Twirp are basically the traditional REST/JSON application with the JSON part replaced with protobuf. This snippet is an example of what a very simple protofile might look like. We define the type User and a string id.
 : Next up: We're going to be using it with gRPC
-: 03:30
+: 03:00
 
 * gRPC
 
@@ -77,7 +77,7 @@ https://jbrandhorst.com
 
 : gRPC is an RPC framework developed to make RPC as fast and safe as possible. It uses HTTP/2 by default to efficiently and quickly send data between client and server, removing most of the overhead of HTTP/1.1. It uses protobuf as the default transport encoding, piggy backing on it for type safety and speedy marshalling. It _is_ possible to use JSON with gRPC if you really want to, but it's kind of pointless. It maps the service definitions in a protofile to API services in the generated files. As we can see, we've added some extra messages for inputs, and we've defined a new service with two methods. Given this, we can generate everything we need to allow the use of gRPC between a client and server. Note that ListUsers streams the results of the operation to the client, something which is not trivial to accomplish with REST/JSON.
 : Next up: But if you were already able to use gRPC, you wouldn't be going to this talk.
-: 05:00
+: 04:00
 
 * The problem with novel tech
 
@@ -90,7 +90,7 @@ https://jbrandhorst.com
 
 : Unfortunately, it's not always so easy to switch entire applications stacks to a new framework. Often there are a number of reasons why we keep using old standards when new, better alternatives are available, such as compatibiliy with existing systems, management pressure, and in this case, the still prevalent expectation that a public API should be using REST/JSON.
 : Next up: What can we do when we want to use gRPC but are forced to use REST/JSON?
-: 06:00
+: 04:30
 
 * The gRPC-Gateway
 
@@ -103,7 +103,7 @@ https://jbrandhorst.com
 
 : The gRPC-gateway project allows you to design gRPC and REST/JSON services at the same time. It uses a cutom protobuf generator that generates a simple reverse proxy that translates on the fly from JSON to protobuf and back again. It allows you to define a URL path and HTTP verb to gRPC service method mapping with a simple annotation scheme in the protofiles. It also provides a Swagger/OpenAPI generator, in case you have some generator you want to use that requires the OpenAPI format. It has been widely adopted within the gRPC community wherever a REST/JSON interface is required. I've added the REST/JSON annotations to the previously defined service methods above. As you can see, the HTTP verb and URL path mappings are defined within the RPC definitions.
 : Next up: How does it work?
-: 07:00
+: 06:00
 
 * Under the hood
 
@@ -112,7 +112,7 @@ https://jbrandhorst.com
 
 : This image shows the basic building blocks in the gateway. You generate a gRPC service as usual with protoc-gen-go, then you use our custom generator, protoc-gen-grpc-gateway, to generate a gateway handler file which registers the mapped HTTP verbs and URL paths to a central mux, which is then used to serve the external REST/JSON interface. It is common to serve the gateway and gRPC server on different ports of the same server, to allow both REST/JSON clients and gRPC clients, but this is not mandatory. The gateway can also be used with non-go gRPC services.
 : Next up: Lets take a look at an example
-: 08:00
+: 06:30
 
 * Demo
 [[https://github.com/johanbrandhorst/grpc-gateway-boilerplate]]
@@ -121,7 +121,7 @@ https://jbrandhorst.com
 : Adding a new field
 : Adding a new method
 : Next up: Lets explore some of the specific features of the gateway, starting with the well known types.
-: 15:30
+: 16:30
 
 * Rich type support
 
@@ -132,7 +132,7 @@ https://jbrandhorst.com
 
 .code types.proto
 
-: These types are part of what you might call a protobuf standard library, and are always included with the proto-c compiler, meaning you don't have to manually manage their downloading and generation. They use a special namespace, google.protobuf, which make them easy to recognize. These types are predefined messages, and include messages for handling Timestamps, Durations, wrappers of primitive types, and others. All of these types have special cases built into them for the gateway, so whenever, for example, you need a Timestamp, make use of the well known type.
+: These types are part of what you might call a protobuf standard library, and are always included with the proto-c compiler, meaning you don't have to manually manage their downloading and generation. They use a special namespace, google.protobuf, which make them easy to recognize. These types are predefined messages, and include messages for handling Timestamps, Durations, wrappers of primitive types, and others. All of these types have special cases built into them for the gateway, so whenever, for example, you need a Timestamp, make use of the well known type. As you can see, I've added some examples here, the timestamp type marshals to and from a RFC3339 timestamp string, the Uint32Value can be used to have nullable uint32s, and the struct type can be used to store arbitrary JSON structures. Please use the last one carefully, as the protobuf representation is a mess to work with, and should only be a last resort.
 : Next up: Lets take a look at what this looks like in action.
 : 17:00
 
@@ -150,7 +150,7 @@ https://jbrandhorst.com
 
 .code patch.proto
 
-: Most protobuf primitive fields such as strings and integers are non-nullable, so in order to do partial updates the best practice is the use of a special message type called a FieldMask. Exposing this implementation detail to your users however is pretty nasty, so the gRPC-Gateway supports translating JSON fields to a field mask and resource type. Fields thare are found in the input JSON are used to populate the resource and field mask, automatically. This code shows an example structure, with the service omitted. The "Output Only" comment indicates that the field is not mutable via partial updates. This support was entirely the result of an open source contribution from Roman Azami and Daniel McDonald.
+: Most protobuf primitive fields such as strings and integers are non-nullable, so in order to do partial updates the best practice is the use of a special message type called a FieldMask. Exposing this implementation detail to your users however is pretty nasty, so the gRPC-Gateway supports translating JSON fields to a field mask and resource type. Fields that are are found in the input JSON are used to populate the resource and field mask, automatically. This code shows an example structure, with the service omitted. The "Output Only" comment indicates that the field is not mutable via partial updates, which is in line with the Google API design docs recommendations. This support was entirely the result of an open source contribution from Roman Azami and Daniel McDonald.
 : Next up: Lets take a look at an example.
 : 21:00
 

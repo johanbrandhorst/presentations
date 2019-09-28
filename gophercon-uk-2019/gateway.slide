@@ -126,7 +126,7 @@ https://jbrandhorst.com
 * Rich type support
 
 - Protobuf includes _Well_ _Known_ _Types_ (WKT)
-- Namespaced by `google.protobuf.`
+- Namespaced by `google.protobuf`
 - Timestamp, Duration, Primitive Wrappers and more
 - Special cases built into the gRPC-Gateway
 

@@ -24,7 +24,20 @@ https://jbrandhorst.com
 : Next up: Lets start with WebAssembly
 : 00:30
 
-* WebAssembly
+* Why WebAssembly?
+
+- Not having to use JavaScript, NPM ecosystem
+- Full stack Go
+- Write the next F̶a̶c̶e̶b̶o̶o̶k̶ _vkontakte_ in Go!
+
+.image standing.svg 300 _
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+
+: Why do we want to use WebAssembly? We like to write Go, but we'd also be able to write websites. Normally, that means using JavaScript, NPM, etc. With WebAssembly, we can instead use Go for both the frontend AND the backend. You could write the next vkontakte in Go!
+: Next up: What is WebAssembly?
+: 01:00
+
+* What is WebAssembly?
 
 - Binary instruction format
 - W3C WebAssembly Working Group, Community Group
@@ -35,7 +48,7 @@ https://jbrandhorst.com
 
 : What is WebAssembly? It is a web standard binary instruction format, like x86 but developed for the web, by the World Wide Web Consortium, with representatives from all 4 major browsers, and with community contribution. It grew out of the asm.js project, which proved that languages like C/C++ could be transpiled to JavaScript and run in the browser. Google developed the Native Client (NaCl), but it was never implemented by any other browsers. Instead, a joint effort was started to develop something new. WebAssembly was designed to be fast to interpret, fast to execute and of course, secure to run.
 : Next up: Where can we run it?
-: 01:00
+: 01:30
 
 * Runtimes
 
@@ -48,7 +61,7 @@ https://jbrandhorst.com
 
 : It has been supported in Chrome, Firefox, Safari and Edge since late 2017, with every modern browser that matters now supporting it. A smattering of runtimes written in a variety of languages have appeared, with wagon and life being the larger Go based WebAssembly runtime projects. The prevalence of runtimes means that WebAssembly isn't just a language for the web anymore, but runnable anywhere the runtimes can run. We might even end up with bare metal chips implementing a WebAssembly runtime. All of that is still a way off though, and today we will focus on using WebAssembly in the browser.
 : Next up: How can we interact with the world from WebAssembly?
-: 01:30
+: 02:00
 
 * Platform interfaces
 

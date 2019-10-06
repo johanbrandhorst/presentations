@@ -2,7 +2,6 @@
 * Change $PS1
 * Change VS code theme
 * Change VS code zoom level
-* run make install-test
 * open hello, js, vecty, vugu
 * start presentation `present -notes -base .`
 * open chromium at http://127.0.0.1:3999

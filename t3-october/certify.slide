@@ -1,0 +1,117 @@
+Automate your Go TLS certificate distribution
+24th Oct 2019
+
+Johan Brandhorst
+@johanbrandhorst
+https://jbrandhorst.com
+
+: I'm Johan, I'm currently working in the Partner team on the 3rd floor. I've been a Go developer for about 3.5 years, I'm a maintainer of various open source projects such as the grpc-gateway, grpc-go-middleware, grpc-web and tinygo. I'm also Go contributor and I run my own blog, writing mostly about go and gRPC, and I get free holidays by giving talks like this at conferences around the world. This is my first tech third Thursday and I'm here today to talk about TLS certificate distribution.
+: Next up: Lets take a step back
+
+* TLS is the gold standard for backend comms
+
+- Encryption
+- Server authentication
+- Client authentication (mTLS)
+- Life is good
+
+.image fuzzy_feeling.jpg _ 700
+
+: TLS is currently the gold standard for securing microservice communications, providing both strong encryption and with mutual TLS the assurance that you're talking to the party you think you are, in an efficient and safe manner. Server presents its certificate to the client, client presents its certificate to the server, both sides get the assurances they need, and life is good.
+: Next up: However, TLS is complicated
+
+* TLS is complicated
+
+- x509, CSR, DER, ASN.1, PEM, RSA, ECDSA, SHA256, ECDHE, CHACHA20 POLY1305
+- Issuing, Revocation, Renewal?
+
+.image complicated.jpg _ 800
+
+: These are some of the acronyms you'll find when reading up about TLS. CHACHA20 POLY1305 is a personal favourite. On top of learning what these all mean, the question of certificate automatic issuing and renewal is often hard to answer. How many of you are guilty of manually renewing the certificate for a critical service? We'll fix it "soon".
+: Next up: Could we automate this?
+
+* Let's Encrypt solves a lot of problems
+
+- Free!
+- Automatically renewed certificates
+- [[golang.org/x/crypto/acme/autocert][golang.org/x/crypto/acme/autocert]]
+- Not possible to use for internal services
+- No client side certificates
+
+.image letsencrypt.png _ 350
+
+: Now, for the publically exposed services Let's Encrypt and certbot have made things significantly easier. Free, automatically renewed certificates has driven the recent trend of increasing encryption on the web. Who has used the autocert package? It hooks into the Go TLS stack to automatically request LE certs when a new request comes in. Unfortunately, it's not possible to use on services that aren't exposed to the public internet, and you can't use it for client side certificates.
+: Next up: there must be a better way!
+
+* Introducing Certify
+
+- [[github.com/johanbrandhorst/certify][github.com/johanbrandhorst/certify]]
+- As easy as LE but for your internal services
+- Both client and server side certificate
+- Sidecar deployment for non-Go apps
+- Lazy requests certificates as necessary
+- Requests are deduplicated
+- Supports Vault, CFSSL and AWS Certificate Manager PCA
+
+.image issuers.png _ 900
+
+: So I wrote a little library for this, and my wife came up with the name Certify. Inspired by autocert, but for internal TLS deployments. As easy as Let's Encrypt, configure once, enjoy automatic issuing and renewal. Even supports client side certificate issuing! Comes with a sidecar container for non-Go apps. Lazy issues certificates and bundles simultaneous requests. Supports using Hashicorp Vault, Cloudflare CFSSL CA or AWS Certificate Manager Private Certificate Authority for issuing. Fun fact, AWS are calling this ACM PCA, which is an ancronym within an acronym. You are now subscribed to AWS acronym facts.
+: Next up: what can we use it for?
+
+* What can we use it for?
+
+- Use mTLS for encryption and authentication
+- Stop worrying about renewal
+- Centralise certificate issuing
+
+: Certify allows you to configure your services to use certificates for server side encryption and verification, but also client-side verification. No more server-to-server JWT tokens, use the metadata in the TLS certificate itself to authenticate the client. Stop worrying about renewal of certificates - it's automatically managed by certify. At no point is the private key of the certificate written to anything but in-process memory. It has the added benefit of a single place where certificate configuration is managed - the issuer.
+: Next up: how is it used?
+
+* Simple API
+
+.code certify.go /certify.Certify/,+14
+.code certify.go /http.Server/,+5
+
+: The certify struct allows the configuration of general certificate details such as the common name, permanent SANs and IPSANs, key type and how often the certificates should be renewed. It plugs right into the tls config struct and can be used anywhere this is used. It allows us to cache certificates to prevent unnecessary requests to issuers.
+: Next up: using Vault with Certify
+
+* Using the Vault issuer
+
+- Set up Vault with PKI
+- Create a PKI role for your server
+- Use the token and role to create a Vault issuer
+.code certify.go /issuer :=/,+13
+
+: Step 1: Set up vault for PKI. Step 2: Create a role for your server. Restrict the SANs the role is allowed to use to ensure the server can only present itself as itself. For example, partner-registration-api gets a token that can only issue certificates for the SAN partner-registration-api. This is currently deployed and working in dev-aws partner, but we ended up not using it for now. Step 3: Use the token and role to create a Vault issuer. The vault issuer will create a new CSR and send it to the Vault server whenever it is called. Pro tip; this makes certificate issuing so easy that you can just issue short lived certificates and ignore the problem of revocation altogether.
+: Next up: so, how does it work?
+
+* How does it work?
+
+.image server_side.svg _ 1000
+
+: TLS request comes into the server and we use the ServerName in the request to look up a certificate in the cache or issue a certificate with the specified configuration.
+: Next up: the client side of things
+
+* Client side
+
+.image client_side.svg _ 1000
+
+: On the client side it looks very similar, except there's a case for the server not requiring client side certificates at all, and the certificate is based around the configured Common Name, marked CN on the diagram.
+: Next up: what have we learnt
+
+* Conclusion
+
+- We've learnt to set up our internal Go apps with automatic client and server certificate distribution
+- One step closer to that fuzzy feeling
+
+.image fuzzy_feeling.jpg _ 700
+
+: We've learnt to configure our TLS configuration to automatically distribute certificates as necessary. We're a little bit closer to that fuzzy feeling.
+: Next up: Questions
+
+* Questions?
+
+.image gopher.png _ 500
+
+.caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]
+

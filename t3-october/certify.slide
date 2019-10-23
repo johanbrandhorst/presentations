@@ -64,6 +64,9 @@ https://jbrandhorst.com
 - Stop worrying about renewal
 - Centralise certificate issuing
 
+.image knight.svg _ 330
+.caption _Knight_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
 : Certify allows you to configure your services to use certificates for server side encryption and verification, but also client-side verification. No more server-to-server JWT tokens, use the metadata in the TLS certificate itself to authenticate the client. Stop worrying about renewal of certificates - it's automatically managed by certify. At no point is the private key of the certificate written to anything but in-process memory. It has the added benefit of a single place where certificate configuration is managed - the issuer.
 : Next up: how is it used?
 
@@ -85,7 +88,7 @@ https://jbrandhorst.com
 : Step 1: Set up vault for PKI. Step 2: Create a role for your server. Restrict the SANs the role is allowed to use to ensure the server can only present itself as itself. For example, partner-registration-api gets a token that can only issue certificates for the SAN partner-registration-api. This is currently deployed and working in dev-aws partner, but we ended up not using it for now. Step 3: Use the token and role to create a Vault issuer. The vault issuer will create a new CSR and send it to the Vault server whenever it is called. Pro tip; this makes certificate issuing so easy that you can just issue short lived certificates and ignore the problem of revocation altogether.
 : Next up: so, how does it work?
 
-* How does it work?
+* Server side
 
 .image server_side.svg _ 1000
 

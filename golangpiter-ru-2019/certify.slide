@@ -1,0 +1,403 @@
+Automate your Go TLS certificate distribution
+1st Nov 2019
+
+Johan Brandhorst
+Utility Warehouse
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Privyet! I'm Johan, I'm Swedish but currently live and work in the UK. I've been a Go developer for about 3.5 years, I'm a maintainer of various open source projects such as the grpc-gateway, grpc-go-middleware, grpc-web and tinygo. I'm also a Go contributor and I run my own blog, writing mostly about go and gRPC. This is my first visit to St. Petersburg and I'm here today to talk about TLS certificate distribution.
+: Next up: Lets get a quick overview
+: 00:30
+
+* Today we will
+
+- Learn about TLS and PKI
+- How to do this today
+- Problems with current approaches
+- Introduce Certify
+- Show how Certify simplifies TLS and PKI management
+- Achieve the fuzzy feeling
+
+.image fuzzy_feeling.jpg _ 500
+
+: Today we will learn about TLS and PKI, what it means for encryption and authentication, and a quick overview over how that works. We will look at how this is generally used today and problems with many of the current practices. We'll then dive into my new library, Certify, which simplifies and automates a lot of the tedious work in this area. We'll explore why and how it works under the hood. Finally, we should move one step closer to that fuzzy feeling of having successfully deployed mutual TLS for encryption and authentication.
+: Next up: Why do we care about all this?
+: 01:00
+
+* Why?
+
+- We write applications
+- Applications handle data
+- How do we secure our and our customers data?
+
+.image knight.svg _ 300
+.caption _Knight_ _gopher_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: As application developers, whether you write mobile apps, backend systems or command line tools, you have a responsibility to handle data safely. It used to be that only banks cared about using encryption, but nowadays it is standard practice for all engineers to know about and use encryption in their day to day work. Gone are the days of the "demilitarised zone", nowadays we have to design with security in mind on every level of the stack, and especially when trasferring data between applications. This usually means using TLS for encrypting traffic. We're going to look a little deeper at how this works today, and I hope to answer the question of how we can easily secure our data in transit.
+: Next up: First, lets look at some of the standards used. What is this TLS thing?
+: 02:00
+
+* Transport Layer Security (TLS)
+
+- Formerly named SSL
+- TLS 1.3 latest version (shipped with Go 1.12)
+- Record and Handshake protocols
+- Uses PKI for handshakes
+
+.image tls.svg _ 400
+.caption Source: [[https://www.netcon-consulting.com/en/expertise/email.html][_Netcon_ _Consulting_]]
+
+: TLS, or Transport Layer Security, is what underpins most of the secure traffic on the internet today. It is the next generation of the Secure Socket Layer (SSL), which was developed by Netscape for their browser back in the day. When SSL was adopted into the Internet Engineering Task Force (IETF), it was renamed TLS. We don't talk about SSL anymore, but if you hear it, some people use it synonymously with TLS. The latest version of TLS, version 1.3, was shipped in go 1.12 and turned on by default in Go 1.13. It was standardised in late 2018 and provides many improvements over 1.2 in speed and security. TLS includes a record protocol, which is used to send data back and forth, and more interestingly the handshake protocol, which allows participants to authenticate each other and negotiate encryption algorithms and cryptographic keys. Almost always the standard used for this part of TLS is PKI.
+: Next up: Well, what's PKI?
+: 03:00
+
+* Public Key Infrastructure (PKI)
+
+- Public / Private key pairs <-> users and machines
+- Certificates have keys
+- Certificate authorities (CA) sign certificates
+
+.image certificate.svg _ 350
+.caption Source: [[https://www.svgrepo.com/svg/69779/certificate][svgrepo.com]]
+
+: Public key infrastructure, or PKI, is a way to map public key cryptography to identities, such as users or machines. It consists, at the most basic level, of a public and private key pair. The public key is what you show the world to authenticate yourself, and the private key is what you keep secret so that only you can identify yourself via the public key. But on the web, while a public and private key exchange would allow encrypted traffic, we also want to be sure that the server we are talking to is the correct one. That's where certificates come in. Certificates are a way for servers (and clients) to authenticate themselves via a so called chain of trust. A certificate has a public and private key associated with and they are most commonly found in the x.509 format. The basic idea is, you trust someone large and respected and trustful, a so-called Certificate Authority, and they guarantee that the website you're visiting is actually owned by the person or company that claims to own it. They do this by signing a certificate created by the website owner. So because you trust the certificate authority to carry out checks that the person creating the certificate is really the owner of the website, you can trust the website. In practice, you yourself don't have to trust a certificate authority, because your operating system and or browser will ship with some pre-trusted certificate authorities, and because you trust your browser vendor or operating system, you establish the chain of trust. The thing about certificates that complicates things further is that they have a lifetime, an expiry. After a certain time, they are no longer valid. So when working with certificates, we must consider how to renew the certificate. We'll touch on that a little bit later.
+: Next up: what does it mean to sign a certificate?
+: 05:00
+
+* Certificate signing
+
+- Certificate Signing Request (CSR)
+- Contains Subject Alternative Names (SANs), IPSANs
+- CA signs CSR, creating a certificate.
+
+.image signed.svg _ 350
+.caption Source: [[https://www.svgrepo.com/svg/49687/circular-label-with-certified-stamp][svgrepo.com]]
+
+: When we say "sign a certificate", what we mean is that we first generate a Certificate Signing Request, or CSR, which contains most of the information about the final certificate, such as Subject Alternative Names (SANs) and IP Subject Alternative Names. These names contain the domains and IP addresses we want to prove ownership of. The CA takes a CSR and signs it using its private key, creating a certificate signed by the CA. As usual, it's very important for both parties to protect their private keys, so this is why you ideally don't ask for a new certificate straight from the CA, since that would mean the CA would have to generate the private key of the user before sending it to them. Using CSRs fixes this by allowing the client to generate its private key in place and just send the public details to the CA in the CSR.
+: Next up: lets take a look at the basics of a TLS handshake
+: 06:00
+
+* TLS 1.3 Handshake
+
+.image tls13.png _ 900
+.caption Source: [[https://blog.cloudflare.com/tls-1-3-overview-and-q-and-a/][Cloudflare]]
+
+: When you make a connection to a server, the first thing that happens is that the client sends some information about its supported ciphers and some random data. The server then replies with the chosen cipher suites and presents its certificate. If we find that the signer of the servers certificate is someone we trust, we continue the handshake. We do this by looking into our certificate pool to see if any of the certificates in there is the CA that signed the servers certificate. If it is, the certificate is trusted and if not, we terminate the connection. After this, if the server requested to see the clients certificate, we send that back along with the first request data, and it too gets a chance to verify the certificate and terminate the connection. If both sides are happy, the session can begin.
+: Next up: Alright, so how do we get a certificate for our servers?
+: 06:45
+
+* Certificate issuing and renewal
+
+- Self sign / Certificate Authority (💰💰💰)
+- Manually mount files
+- Can we automate this?
+
+.image morpheus.jpg _ 600
+
+: When it comes to acquiring a certificate for your website, you are faced with basically 2 options. You can self sign the certificate, which is cheap and you can make the lifetime of the certificate as long as you want. However, it is a little bit like signing your own homework - why should anyone trust that you are the owner of a website when the person verifying that you own it is yourself? So you go to one of the large public certificate authorities and you tell them that you'd like to purchase a certificate which expires in 1 year, and you have to prove that you own the domain you want to purchase for, etc. They'd then send you a certificate and private key, and you have to manually make sure these files are accessible to your application, probably with something like a file mount. This is an expensive, manual task. Having to go through this every year for every application is against everything we're taught as programmers. There must be a better way! We must be able to automate this.
+: Next up: What if I told you there was another way?
+: 07:45
+
+* Let's Encrypt
+
+- Free
+- Automated (certbot)
+- [[golang.org/x/crypto/acme/autocert][golang.org/x/crypto/acme/autocert]]
+
+.code autocert.go /func main()/,+11
+
+: A new certificate authority, called Let's Encrypt, started with the idea that everyone should be able to encrypt their website traffic, not just large corporations. And that it should be free! Let's Encrypt has an API that issues certificates for free, automatically. You've probably heard of certbot, which uses Let's Encrypt under the hood. With certbot, you just add a sidecar container to your application that automatically updates the certificate files on a mounted filesystem. All the steps from key generation to certificate issuing are automated. It does this by asking the requester to reply to a request in a specific manner, then makes a request to the domain the certificate is requested for. Because only the webite owner would be able to make the server respond in such a way, authenticity is established. In Go we have a library called autocert which makes this even easier than certbot itself. Anyone used it? It allows you to configure a callback that hooks right into the Go TLS stack itself. When a new connection is made, it can ask Let's Encrypt for a certificate right there and then. You can then cache the certificate so you don't have to request a new cert on every request. This makes certificate management a complete breeze.
+: Next up: Great, we've solved all our problems! Talk is over. Well, not quite.
+: 09:00
+
+* Not quite
+
+- What about internal taffic?
+- What about client side certificates?
+- What about rate limits?
+
+.image letsencrypt.png _ 500
+
+: Let's Encrypt is great for services running on the public internet, where you can simply prove your ownership of a DNS record by replying to a request on your server. However, for internal traffic, which never touches the public internet, how could Let's Encrypt possibly verify that we have ownership of the domain we want to create a certificate for? What if we want to issue client side certificates, so that servers can authenticate clients, too? Let's Encrypt also has a rate limit of 5 certificates per domain per week. While this is completely sensible for a nonprofit organisation who handles thousands of requests per day, as a user it can sometimes be annoying. What if there was something like Let's Encrypt that we can use for internal traffic? A certificate authority with a nice API that we can use to issue certificates that we can manage ourselves.
+: Next up: Turns out there are several alternatives
+: 10:00
+
+* CA issuers with APIs
+
+- Hashicorp Vault
+- Cloudflare CFSSL
+- AWS Certificate Manager Private Certificate Authority (ACMPCA)
+- Others
+
+.image issuers.png 180 _
+
+: There are at least 3 popular choices for rolling your own certificate authority. Hashicorp Vault is often used for secret storage but also has a PKI backend. With Hashicorp's focus on security and cloud native design it is a great choice for your internal CA, and we'll take a quick look at an example later. Another alternative is Cloudflare's CFSSL, which has more of an internal tool feeling to it than the polished Vault design. It's nonetheless popular and easy to use. A cloud based offering is AWS's Certificate Manager Private Certificate Authority. AWS likes to call this ACMPCA, which is an acronym within an acronym. You're now subscribed to Amazon acronym facts. ACMPCA charges per certificate issued, so may be interesting if you want as little work as possible. There are other alternatives as well, but these were the major ones I could find.
+: Next up: How do we run our own CA?
+: 11:00
+
+* Running your own CA
+
+- Generate a root certificate
+- Generate and sign intermediate certificate
+- Distribute root certificate
+
+.image dyi.svg _ 300
+.caption Source: [[https://www.svgrepo.com/svg/35877/hammer-and-double-side-wrench-in-cross][svgrepo.com]]
+
+: There are basically 3 steps to setting up your own CA. First, you generate your self-signed long-lived root certificate. You then take the root certificate and use it to sign an intermediate certificate. Finally you distribute the root certificate to all your clients and servers. We're now going to look at a brief pseudo code example of doing this with Vault.
+: Next up: Generating the root certificate
+: 11:30
+
+* Generate the root certificate
+
+- Generate the root certificate
+ $ go run $(go env GOROOT)/src/crypto/tls/generate_cert.go -ca -duration 87600h -host "Root"
+- Store the private key safely!
+- Don't be like NordVPN
+
+.image safe.svg _ 300
+.caption Source: [[https://www.svgrepo.com/svg/35110/safe-box][svgrepo.com]]
+
+: You can use openssl or Go to generate your certificate, we'll use Go. Give it a lifetime of something like 10 years, or sufficiently long that you're no longer responsible for renewing it whenever it expires. The private key generated with this certificate must be stored safely - ideally on one or a few physically isolated USB drives in literal vaults. This private key is very rarely needed and underpins the security if your entire CA deployment. Don't be like NordVPN, don't leak your master keys.
+: Next up: generate and sign intermediate
+: 12:00
+
+* Generate and sign the intermediate certificate
+
+- Generate the intermediate certificate
+ $ vault write -format=json pki/intermediate/generate/internal | jq -r '.data.csr' > int.csr
+- Sign using root cert and key
+ $ cat > openssl.cnf <<EOF
+ [ intermediate_ca ]
+ basicConstraints = critical,CA:true
+ keyUsage = cRLSign, keyCertSign
+ EOF
+ $ openssl x509 -req -extfile openssl.cnf -extensions intermediate_ca \
+    -days 365 -in int.csr -CA cert.pem -CAkey key.pem \
+    -CAcreateserial -out int.pem -sha256
+- Store back in vault
+ $ vault write pki/intermediate/set-signed certificate=@int.pem
+
+: Now, we generate an intermediate certificate. This certificate should have a relatively long lifetime as well, something like 1-3 years, because you don't want to have to get your root certificate and key out too often to sign new intermediate certificates. An intermediate certificate is so called because it's part of the chain of trust, but not the root. It's any certificate in the chain that isn't the root, essentially. Once you have the intermediate certificate ready you will need to install it in your CA. This differs between the different options, but Vault makes this really easy by allowing you to generate a CSR for the new intermediate cert right via the API. We then sign this using the root certificate and key. Again, we can use openssl or even CFSSL for this step. We'll use openssl in this case since it's usually preinstalled. OpenSSL does not make this easy, requiring something as arcane as a CONFIG FILE to sign a certificate. This part took me a while to get right, but it should work so you're welcome! Once you've signed the CSR with your root cert and key, store it back in Vault.
+: Next up: distribute the root certificate
+: 13:15
+
+* Distribute the root certificate
+
+- Ensure all clients and servers roots are updated
+
+.code root_linux.go /// Possible/,+8
+.caption Source: [[https://golang.org/src/crypto/x509/root_linux.go][crypto/x509]]
+
+ cat cert.pem >> /etc/ssl/cert.pem
+
+- Ensure applied after base OS updates
+
+: This sounds like a manual step, and you're not wrong, but the good thing here is that you only need to redo this step if you need to regenerate the root certificate. Remember, the one we gave a long enough lifetime so as to not be our problem by the time it expires? That one. Fortunately, there's an easy way to do this on linux systems. You're probably using docker, so you'll just need to figure out where the ca trust store lives for your container base. It's going to be one of these, most likely the first or the last. Once you've identified which one it is, you just append your root certificate, in PEM format, to the end of the file. Make sure you do this as part of your container build, so that it is applied _after_ any operating system updates. That's it! These files are automatically used by the Go TLS stack to create the default cert pool for applications. Note that this will keep your public roots in the cert pool as well, so if you want to be entirely sure only the certificates issued by your CA are used, either overwrite the file or manually specify the cert pool in code.
+: Next up: that's all we need to generate certificates on demand
+: 14:15
+
+* Create certificates on demand
+
+- Generate local CSR
+- Using Vaults API
+ $ vault write pki/roles/myrole allow_any_name=true
+ $ vault write pki/sign/myrole csr=@local.csr
+- How do we ensure authenticity?
+- How do we limit who can create what certificate?
+
+.image police.svg _ 200
+.caption Source: [[https://www.svgrepo.com/svg/10013/police-cap][svgrepo.com]]
+
+: Now that we have Vault set up with our intermediate certificate and we've distributed the root certificate to all clients and servers, we can go ahead and use Vault to both create certificates and sign CSRs. Remember what we said about having your CA create your certificate - it means it has to know and send the private key to the client. Much better to generate a CSR and send that for signing. But some questions still remain. Now that we have an API to create certificates with, how can we trust that only those applications that should be able to create a certificate for specific domains can?
+: Next up: How can we enforce limits on certificate creation?
+: 15:00
+
+* Vault PKI roles
+
+- Configure roles to use specific domains
+ $ vault write pki/roles/uw allowed_domains=["uw.com", "uw.co.uk"]
+ $ vault write pki/roles/myapp allowed_domains=["myapp.com", "app.myapp.com"]
+- Tie tokens to specific roles with policy
+- Create users for each role
+ $ vault write auth/userpass/users/uw
+ $ vault write auth/userpass/users/myapp
+
+: As we briefly saw before, Vault has the concept of roles in PKI. A role can be assigned a number of allowed domains, and whether it should be allowed to use localhost, etc. This allows us to limit the domains that a client can create certificates for. Vault also has the concept of policies and users, and it's possible to create a policy that only allows a user to use roles which match their username. So for our store, we create a user called uw, and the policy uw will automatically be mapped to that user. The credentials created are then distributed to the uw app, and it is able to connect to vault, but only issue certificates for uw.com and uw.co.uk. This opens up some very exciting possibilities!
+: Next up: what can we do with authenticated certificates?
+: 16:00
+
+* Authenticated certificates
+
+- Opens the door to mTLS authentication
+- Removes the need for traditional machine auth (JWT/Sessions)
+- No JWT? No extra roundtrip to create/blacklist tokens
+
+.image fingerprint.svg _ 350
+.caption Source: [[https://www.svgrepo.com/svg/10106/fingerprint][svgrepo.com]]
+
+: Now that we have established that only the uw application is able to issue certificates for uw.com, it means that any services that have the uw application as a client will be able to authenticate using the client certificate. It completely removes the need for things like machine JWT tokens for authenticating that the client is allowed to call the API. When we don't have to worry about machine authentication, it removes entire architectural constraints from our deployment. No longer do we need to issue and blacklist tokens.
+: Next up: How do we do this with Go?
+: 16:30
+
+* Server side mTLS authentication
+
+.code server_conf.go /var tlsConfig/,+2
+.code verify_client.go /func VerifyClient/,+14
+.code server_conf.go /var h/,+0
+
+: This was something I put together to quickly show how you can perform client authentication using the certificate. Visit my blog for an example of how to do this in gRPC, or just google "grpc client authentication", it's the second result. The first thing you do is to ensure your server requires the client to present a certificate and that the server verifies it. This will guarantee that only clients with certificates issued by the trusted roots are even allowed to connect to your server. The second part here is an example middleware wrapper that checks that the subject common name of the client certificate is one of the permitted clients. This way we ensure only the uw app, for example, can connect to the server, because only the uw app is allowed to issue certificates for uw.com and uw.co.uk.
+: Next up: But wait, there's still a manual step involved here!
+: 17:30
+
+* Putting it all together
+
+- We have an authenticted API for issuing
+- We can issue specific certs to specific clients
+- Autocert automated this for Let's Encrypt
+- Can we automate this in the same way?
+
+.image thinking.svg _ 300
+.caption Source: [[https://www.wikidata.org/wiki/Q42400102][wikidata.org]]
+
+
+: We're so close, but we're not there yet! We have an authenticated API for issuing certificates, and we can limit which clients can issue which certificates, but the issuing step is still manual. But, didn't autocert automate this part for Let's Encrypt? Can we do what autocert does for Let's Encrypt, but for internal certificate authorities? Can we automate this in the same way? RIP blobs by the way.
+: Next up: Of course we can!
+: 18:00
+
+* Introducing Certify
+
+- [[github.com/johanbrandhorst/certify][github.com/johanbrandhorst/certify]]
+- As easy as autocert but for your internal services
+
+.image certify.png _ 400
+
+
+: I'm pleased to introduce Certify, a library which fills the same role for internal traffic as autocert does for public traffic. My wife came up with the name and apparently it's very important that I make this explicit whenever I present it. It was inspired by autocert, but built specifically for use with internal PKI deployments. It's as easy to use as autocert, just configure it once and enjoy automatic issuing and renewal.
+: Next up: Lets take a closer look at the features.
+: 18:30
+store
+* Features
+
+- Exposes a simple interface for issuers
+.code certify.go /type Issuer/,+2
+- Both client and server side certificates
+- Lazy requests certificates as necessary
+- Requests are deduplicated
+- Sidecar deployment for non-Go apps
+- Supports Vault, CFSSL and AWS CM PCA
+
+.image issuers.png _ 800
+
+: Certify exposes a simple interface which can be use to implement your own issuers. It currently has built-in support for Vault, CFSSL and AWS, but there's nothing stopping you from writing your own issuer and plugging it in. In addition to supporting server side certificate issuing, Certify also supports automatically issuing client side certificates. It can do this because of the limitations we just discussed, where only certain clients are allowed to issue certificates for certain domains. There is no analogue for this in Let's Encrypt or autocert. We'll see in a moment exactly how this works under the hood, but one consequence of the design is that Certify will only requests certificates on the first request, incoming or outgoing. If this isn't desirable, it's always possible to force it to issue a certificate on startup. I've been using this in production at both my current and previous places of employment, and one of the things we noticed was that when a service restarted it would often receive or make a burst of requests on startup, and this coupled with many services all restarting at once led to a thundering herd effect on the poor issuer (Vault). To prevent this from happening, Certify now deduplicates requests so that simultaneous calls to the library all result in a single request to the issuer. Maybe most interesting of all for some of you - Certify comes with a sidecar container for non-Go apps, so you don't even need to use Go to enjoy the benefits.
+: Next up: how do we use it?
+: 20:00
+
+* Using the Vault issuer
+
+.code certify.go /issuer :=/,+13
+
+: We've already explored how we can configure Vault for use as an internal CA. Here we have configured the vault issuer to connect to our local vault instance, with the specified role and token. As you can see, we also have some issuer specific options, namely the time-to-live which specifies how long the signed certificate should be valid for. We can also specify other subject alternative names, which take an OID format. You probably don't have to configure this, but it's there if you need it. We'll take a look later at how the issuer works under the hood.
+: Next up: how do we use the issuer with our servers?
+: 20:45
+
+* Configure the server
+
+.code certify.go /certify.Certify/,+14
+.code certify.go /http.Server/,+6
+
+: Once we have an issuer configured, we can use the certify struct to configure general certificate details such as the common name, subject alternative names, IP subject alternative names, key type and how often the certificates should be renewed. It plugs right into the tls config struct, like autocert, and can be used anywhere this is used. It allows us to cache certificates to prevent unnecessary requests to issuers, and in this example we're using an in-memory cache, which works fine if you're OK with re-issuing the certificates whenever you restart your application, but you could also store it on disk, or even store it on S3 if you're feeling a bit wild. Note that this is not recommended since the certificate stored will also include the private key of the application. We've also configured certify to automatically renew certificates when there is less than 1 day left until it expiry. This doesn't need to be configured, since Certify will automatically request a new certificate if the current one has expired.
+: Next up: How do we use the sidecar, for non-go applications?
+: 22:00
+
+* Certify sidecar
+
+- [[https://hub.docker.com/r/jfbrandhorst/certify][jfbrandhorst/certify]]
+- Proxies incoming traffic
+- Configured via the environment
+- Supports Vault/CFSSL/AWS issuers out of the box
+
+ $ docker run --rm -it \
+    -e ISSUER=vault \
+    -e COMMON_NAME=uw.co.uk \
+    -e VAULT_URL=https://my-vault-instance.internal.network \
+    -e VAULT_TOKEN=TOKENSOMETHINGSOMETHING \
+    -e VAULT_ROLE=uw \
+    -e LOG_FORMAT=text \
+    jfbrandhorst/certify
+ INFO[0000] Proxying traffic from ":443" to "localhost:80" 
+
+: The Certify sidecar is a docker container sits in front of your application and proxies incoming traffic on port 443 to port 80, by default. Here we have an example of the parameters required to start the Certify proxy sidecar when using the vault issuer. The sidecar has sane defaults for the other settings, but most of the things that are configurable in the library are also configurable in the sidecar, such as the private key type, a cache directory, subject alternative names and IP subject alternative names. I haven't yet figured out how to proxy all traffic from the service, so it can't do client side certificates yet, but it's something I'm hoping to be able to support eventually.
+: Next up: How does it work?
+: 22:30
+
+* How does it work?
+
+.code tls.go /type Config/,+12
+.caption Source: [[https://golang.org/pkg/crypto/tls/#Config][crypto/tls]]
+
+: Within the Go TLS package, we have the Config struct. The config struct contains two fields which can control the fetching of certificates, GetCertificate for servers and GetClientCertificate for clients. When a new server side handshake is initiated, the GetCertificate function is called. If a server that we're connecting to requires a client certificate, GetClientCertificate is called. All Certify does it provide these callbacks, and the translation to the different issuers. Since the tls.Config struct is used in many other places than just net/http, Certify supports issuing certificates for anywhere you can use the tls Config struct, such as when using gRPC or when connecting to a database.
+: Next up: Looking into Certify
+: 23:00
+
+* Server side
+
+.image server_side.svg _ 1000
+
+: This diagram shows roughly the logic flow in a certify enhanced Go application. The parameters to GetCertificate includes a "ServerName", which is the domain that was used to connect to the service. This is also the domain that we must present a certificate for. So we look up if we already have a certificate for this domain in the cache. If we don't, we call out to the issuer. If we do, we check that the certificate expiry isn't within the configured threshold within which we want to renew the certificate. If it is, then we call to issuer again. This is the fast path of the library, marked in green here, and is what the application will normally be doing. If we do end up calling out to the issuer, we make sure to store the certificate in the cache before returning.
+: Next up: the client side is a little different.
+: 24:00
+
+* Client side
+
+.image client_side.svg _ 1000
+
+: On the client side it looks very similar, except there's a case for the server not requiring client side certificates at all. If that is the case, the Go TLS stack doesn't bother asking for a certificate. This is why it's important that we use the correct server configuration, to require the client certificate. Other than that, the only other difference is that when you're requesting a client side certificate, there's no "ServerName", so we need to decide what certificate to present. Certify uses the common name configured when selecting a certificate. The rest of the flow is the same, and we can even reuse certificates between the server side and client side in the same service.
+: Next up: What do the issuers do?
+: 24:45
+
+* The Vault issuer
+
+- [[https://github.com/johanbrandhorst/certify/tree/master/issuers/vault][github.com/johanbrandhorst/certify/issuers/vault]]
+- Generate a CSR
+- Sign CSR with Vault API client
+
+.image pki_api.jpg 280 _
+.caption Source: [[https://www.vaultproject.io/api/secret/pki/index.html#sign-certificate][Vault PKI API]]
+
+- Parse certificate from response
+
+: We'll use the Vault issuer as the example, but all 3 issuers implement very similar behaviour. The first thing that happens is that we create a new key pair and CSR from the cert config struct. This'll contain the domains and IPs that we want to create a certificate for. We then use the Go vault API client to send the request. Once the response is ready, we parse the PEM encoded certificate from it and combine it with our private key before returning it. These are basically the same for all the issuers, so if you need to implement your own, the Vault issuer is a good source of inspiration.
+: Next up: Lets take all we've covered one step further
+: 25:30
+
+* Taking this one step further
+
+- We have automated the whole workflow
+- We're using certificates for authentication
+- Certificates are now as easy to issue as tokens
+- Can we use token-scale lifetimes for certificates?
+
+.image machinery.svg 300 _
+.caption Source: [[https://www.flaticon.com/free-icon/machinery_145584][flaticon.com]]
+
+: We've automated everything from key generation to certificate issuing. We're using certificates for authentication and certificate issuing is now as easy as token issuing. Why are we even bothering with longer lived certificates and the possibility of having to deal with revocation? What if we use token scale lifetimes for our certificates? Certify easily supports certificates with lifetimes in the order of minutes. The only restriction is how often you can deal with the overhead of issuing a new certificate, and how much load you want to place on your issuer.
+: Next up: summing up
+: 26:00
+
+* Conclusion
+
+- We learned about TLS and PKI
+- We deployed Vault with PKI
+- We configured Vault to discriminate users
+- We automated our internal TLS certificate deployment with Certify
+- We retired tokens for internal service authentication
+- One step closer to that fuzzy feeling
+
+.image fuzzy_feeling.jpg _ 500
+
+: In conclusion, we've learned about TLS and PKI. We know how certificates work, we know what a CSR is, we know how a TLS handshake works. We've deployed Hashicorp Vault with PKI, and configured it to discriminate between users to decide which user is allowed to issue certificates for a specific domain. We automated our internal certificate issuing with Certify and we retired tokens for internal service authentication in favor of validating the subject name of the clients certificate. We're one step closer towards that fuzzy feeling we discussed at the start.
+: Next up: Thank you and questions
+: 26:30
+

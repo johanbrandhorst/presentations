@@ -6,4 +6,4 @@ var tlsConfig = &tls.Config{
 	ClientAuth: tls.RequireAndVerifyClientCert,
 }
 
-var h = VerifyClient(mux, "mystore.com", "app.mystore.com")
+var h = VerifyClient(mux, "uw.com", "uw.co.uk")

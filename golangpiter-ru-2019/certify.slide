@@ -277,7 +277,7 @@ https://jbrandhorst.com
 : I'm pleased to introduce Certify, a library which fills the same role for internal traffic as autocert does for public traffic. My wife came up with the name and apparently it's very important that I make this explicit whenever I present it. It was inspired by autocert, but built specifically for use with internal PKI deployments. It's as easy to use as autocert, just configure it once and enjoy automatic issuing and renewal.
 : Next up: Lets take a closer look at the features.
 : 18:30
-store
+
 * Features
 
 - Exposes a simple interface for issuers

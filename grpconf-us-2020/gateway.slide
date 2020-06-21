@@ -1,0 +1,188 @@
+Writing REST services for the gRPC-curious
+28th July 2020
+
+Johan Brandhorst
+Buf
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi everyone, I'm Johan, I'm a maintainer of various open source projects, including the grpc-gateway and Improbable's grpc-web. I've contributed to Go and I run a blog writing mainly about Go and gRPC. This is my first gRPC Conf and it's great to be here!
+: Next up: Buf
+: 00:30
+
+* Buf
+
+- Schema driven development
+- Linting
+- Breaking change detection
+- Buf schema registry (BSR)
+- Automated generation
+
+.image buf.png _ 200
+.caption [[https://buf.build/][buf.build]]
+
+: I work at Buf, where we are working on API management tooling for protobuf users through schema driven development. We already support linting of proto files and breaking change detection and we've got some really exciting products in the works, including the Buf schema registry and automated protobuf file generation and dependency management. Check out our website for more information! Lets dive into the talk.
+: Next up: I'm here today to talk about HTTP/JSON and gRPC.
+: 01:00
+
+* Today we will
+
+- Define HTTP/JSON
+- Explore the gRPC-Gateway
+- Use HTTP/JSON with gRPC
+- Do some live coding
+
+.image witch.svg _ 400
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+
+: Today we're going to look at what we mean by HTTP/JSON, what it's used for and explore some problems associated with it. We're then going to learn about about how we can get the best of both gRPC and HTTP/JSON with the gRPC-Gateway. We'll then have some live demo of it in action.
+: Next up: What do we mean when we say HTTP/JSON?
+: 01:30
+
+* What do we mean by HTTP/JSON?
+
+- A RESTful interface with JSON payloads
+- The _de_ _facto_ standard for service communication
+- Easy for humans to read and write
+- Native JavaScript support
+
+.image rest.png _ 600
+.caption Source: [[https://restful.io/rest-api-back-to-basics-c64f282d972][restful.io]]
+
+: We mean a RESTful interface, making use of the HTTP verbs (GET, POST, PUT, PATCH, DELETE) and using JSON as the payload content type. This is the de facto standard for most public APIs today. Sometimes it's not entirely RESTful, but it's almost always using JSON. It's easy for humans to read and write, it's got native javascript support, all is well, right?
+: Next up: Is everything well?
+: 02:00
+
+* Problems with JSON
+
+- Not that easy to write (no trailing commas, no comments)
+- Inefficient on the wire (compression helps)
+- Expensive marshalling
+- Poorly typed
+- No single source of truth for API (OpenAPI?)
+
+.image malformed.jpg _ 400
+
+: As anyone who has ever had to quickly push a configuration fix to your JSON configured service knows, trailing commas are forbidden in JSON. I wish I was joking in saying that this is a big problem, but entirely new formats have been developed to deal with this problem. There's also no support for comments. It's unnecessarily verbose on the wire, but compression can help mitigate this. In large deployments, the marshalling and unmarshalling of JSON is a constant strain on response latency. Most importantly, it is not well typed enough, and there is no single way to define the interface types. OpenAPI is an option, but it's not globally adopted. Most of these problems stem from the fact that JSON was designed to be human-readable, but also effective for a machine to use. These two properties are, unfortunately, not compatible.
+: Next up: But wait, we know all this, that's why we use protobuf and gRPC
+: 03:00
+
+* Protocol buffers and gRPC
+
+- Fast
+- Type-safe
+- A single source of truth
+- Generators for different languages
+- Streaming
+
+.code service.proto
+
+: Protocol buffers and gRPC provides all the benefits we care about over HTTP/JSON, such as speed, type safety, a single source of truth, code generation and much more. We know this, which is why we use gRPC. 
+: Next up: But why hasn't the whole world switched to protobuf and gRPC?
+: 03:30
+
+* The problem with novel tech
+
+- Existing services/clients
+- Company unwillingness to invest in new tech
+- Public API expectation is HTTP/JSON
+
+.image scientist.svg 350 _
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+
+: Unfortunately, it's not always so easy to switch entire application stacks to a new framework. Often there are a number of reasons why we keep using old standards when new, better alternatives are available, such as compatibiliy with existing systems, management pressure, and in this case, the still prevalent expectation that a public API should be using HTTP/JSON.
+: Next up: What can we do when we want to use gRPC but are forced to use HTTP/JSON?
+: 04:00
+
+* The gRPC-Gateway
+
+- [[https://github.com/grpc-ecosystem/grpc-gateway][https://github.com/grpc-ecosystem/grpc-gateway]]
+- Translates HTTP/JSON requests to gRPC and back
+- Simple annotation in proto files
+- Provides Swagger/OpenAPI generator
+
+.code gateway.proto
+
+: The gRPC-gateway project allows you to design gRPC and HTTP/JSON services at the same time. It uses a cutom protobuf generator that generates a simple reverse proxy that translates on the fly from JSON to protobuf and back again. It allows you to define a URL path and HTTP verb to gRPC service method mapping with a simple annotation scheme in the protofiles. It also provides a Swagger/OpenAPI generator, in case you have some generator you want to use that requires the OpenAPI format. I've added the HTTP/JSON annotations to the previously defined service methods above. As you can see, the HTTP verb and URL path mappings are defined within the RPC definitions.
+: Next up: How does it work?
+: 05:00
+
+* Under the hood
+
+.image gateway.png _ 1000
+.caption Source: [[https://github.com/grpc-ecosystem/grpc-gateway][gRPC-Gateway]]
+
+: This image shows the basic building blocks of the gateway. You generate a gRPC service as usual with protoc-gen-go or proto-c, then you use our custom generator, protoc-gen-grpc-gateway, to generate a gateway handler file which registers the mapped HTTP verbs and URL paths to a central mux, which is then used to serve the external HTTP/JSON interface. It is common to serve the gateway and gRPC server on different ports of the same server, to allow both HTTP/JSON clients and gRPC clients, but this is not mandatory. The gateway can also be used with non-Go gRPC services, you simply connect to an external gRPC service in the setup. You can even serve the gateway and grpc-server on the same port and split traffic using HTTP headers if you want to get fancy!
+: Next up: Lets take a look at an example
+: 06:00
+
+* Demo
+[[https://github.com/johanbrandhorst/grpc-gateway-boilerplate]]
+
+: I'm going to show you an example of the grpc-gateway from my boilerplate repo. If you have a laptop at hand please feel free to clone the repo and follow along.
+: Adding a new field
+: Adding a new method
+: Next up: Lets explore some of the specific features of the gateway, starting with the well known types.
+: 16:00
+
+* Rich type support
+
+- Protobuf includes _Well_ _Known_ _Types_ (WKT)
+- Namespaced by `google.protobuf`
+- Timestamp, Duration, Primitive Wrappers and more
+- Special cases built into the gRPC-Gateway
+
+.code types.proto
+
+: These types are part of what you might call a protobuf standard library, and are always included with the proto-c compiler, meaning you don't have to manually manage their downloading and generation. They use a special namespace, google.protobuf, which make them easy to recognize. These types are predefined messages, and include messages for handling Timestamps, Durations, wrappers of primitive types, and others. All of these types have special cases built into them for the gateway, so whenever, for example, you need a Timestamp, make use of the well known type. As you can see, I've added some examples here, the timestamp type marshals to and from an RFC3339 timestamp string, the Uint32Value can be used to have nullable uint32s, and the struct type can be used to store arbitrary JSON structures. Please use the last one carefully, as the protobuf representation is a mess to work with, and should only be a last resort.
+: Next up: Another WKT has a special use in the gateway
+: 17:00
+
+* PATCH requests
+
+- Protobuf primitive fields are non-nullable
+- Best practice to use `google.protobuf.FieldMasks` for partial updates
+- gRPC-Gateway Maps JSON fields to FieldMask and resource
+- Contributed by Roman Azami and Daniel McDonald
+
+.code patch.proto
+
+: Most protobuf primitive fields such as strings and integers are non-nullable, so in order to do partial updates the best practice is the use of a special message type called a FieldMask. Exposing this implementation detail to your users however is pretty nasty, so the gRPC-Gateway supports translating JSON fields to a field mask and resource type. Fields that are are found in the input JSON are used to populate the resource and field mask, automatically. This code shows an example structure, with the service omitted. The "Output Only" comment indicates that the field is not mutable via partial updates, which is in line with the Google API design docs recommendations. This support was entirely the result of an open source contribution from Roman Azami and Daniel McDonald.
+: Next up: How do we handle errors in our service?
+: 18:00
+
+* Error handling
+
+- gRPC uses the `google.rpc.Status` type
+- Well defined mapping from `google.rpc.Code` codes
+
+    INVALID_ARGUMENT    => 400
+    UNATHENTICATED      => 401
+    PERMISSION_DENIED   => 403
+    NOT_FOUND           => 404
+
+- Custom error handlers
+
+.code errors.go
+
+    gwmux := runtime.NewServeMux(
+        runtime.WithErrorHandler(server.CustomErr),
+    )
+
+: When working with gRPC, we use the Status type for errors, which includes a message and a code. The gRPC-Gateway automatically translates the codes into appropriate HTTP Status codes, according to the google.rpc.Code definitions. Here we can see a sample of the error codes and their mapping. If you have more specific needs for your error handling, such as a custom error struct format, you can create your own error handling function and configure the runtime mux with it on startup. Here we have an example of an error handler that sets the response code to one that is mapped from the grpc status, and the response body to simply be the error message. Note that using custom errors like this will break the default OpenAPI generator definitions.
+: Next up: Wrapping up
+: 19:00
+
+* Conclusion
+
+- We've created a HTTP/JSON service
+- We've snuck in a gRPC service into our stack
+- New clients can use gRPC
+- Old clients don't have to change
+- Only a snapshot of all the features of the gRPC-Gateway
+
+.image standing.svg _ 300
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+
+: We've created a HTTP/JSON service, but used gRPC and protobuf under the hood. This allows us to get all the benefits of the protobuf IDL while still exposing a JSON interface externally. We've also managed to sneak a gRPC service into our stack, and now it's much easier to argue that gRPC might be something worth trying. New clients can use gRPC, and old clients can keep using the JSON interface. Most importantly, we've found an easy, robust way to write RESTful services, and we've only explored a snapshot of all that the gRPC-gateway has to offer. Other features include the ability to set cookies, perform header-based authentication in interceptors and much more! I hope you will, as I do, use the gRPC gateway for your next HTTP/JSON service.
+: 20:00

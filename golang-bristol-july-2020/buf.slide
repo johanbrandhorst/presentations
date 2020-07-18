@@ -1,0 +1,172 @@
+# A Protobuf and gRPC Crash Course with Buf
+29th of July 2020
+
+Johan Brandhorst
+Buf
+@johanbrandhorst
+https://jbrandhorst.com
+
+: I'm Johan, I'm a maintainer of various open source projects, including the grpc-gateway and Improbable's grpc-web. I've contributed to the Go standard library and I run a blog writing mainly about Go and gRPC. I just started working at Buf, where we're thinking about protobuf so you don't have to.
+: Next up: Overview
+: 00:30
+
+## Today we will
+
+  - Talk about APIs
+  - Introduce Protobuf and gRPC
+  - Build a complete gRPC server from scratch
+  - Learn to use Buf
+
+.image witch.svg 250 _
+.caption _Witch_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: I'm here today to talk to you about APIs. We're going to take a look at the existing standards surrounding API development and usage. Then we're going to introduce Protobuf and gRPC, and talk about what they offer over the existing standards. We're then going to dive into a bit of live coding where we start from nothing and build up to a gRPC server and client. Along the way we're going to explore some of the ways that Buf helps make all of this easier, safer and more maintainable in the long term.
+: What do we mean when we talk about APIs?
+: 01:00
+
+## APIs
+
+- Servers
+- Clients
+- Exposing functionality
+- Compatibility?
+- API evolution?
+
+.image build.png _ 250
+.caption _Go_ _Build_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: Generally we talk about a service exposing some functionality to some clients. There can be many servers backing the service, for example if you're exposing an API that gets a lot of traffic. An API is a description, a contract, a guarantee, that when you send this, I will return data in this shape. This is how we normally think about APIs, but it's often easy to forget other things that also concern APIs, such as compatibility and API evolution. How do we introduce a new field in a response or request? How do we change the behaviour of some API method? How do we do these things with minimal disruption to the user of our API? We'll talk a bit more about this in a bit.
+: So what do we usually use when working with APIs?
+: 02:00
+
+## JSON/HTTP
+
+- Simple
+- Human readable
+- Better than XML?
+- Widely supported
+- Some typing
+
+.image solutions.svg 250 _
+.caption _GopherNotes_ _Gopher_ by [[https://twitter.com/marcusolsson][Marcus Olsson]]
+
+
+: The de-facto standard for API development today is what I like to call JSON/HTTP. A lot of people call this "REST", but REST doesn't actually prescribe the transport encoding, it's just a way to design APIs, which is why I think JSON/HTTP is a better word for it. Basically, JSON being sent over HTTP/1.1, the format we're all familiar with. It's simple, it's human readable, it's widely supported, it has some types (floats, strings, lists, objects and null). It's better than XML! So why are we here talking about JSON/HTTP if it's working fine?
+: What's wrong with JSON/HTTP?
+: 03:00
+
+## What's wrong with JSON/HTTP?
+
+- Poorly typed
+- No single source of truth
+- Expensive marshalling
+- Large payloads
+- No compatibility guarantees
+
+.image malformed.jpg _ 400
+
+: Lets start with the JSON types. JSON numbers are arbitrary size integers, right? Should be no problem sending large numbers? Nope, JSON numbers are 64 bit floating point, so you can safely send anything smaller than a 53bit integer, but good luck beyond that. Strings are fine, but there's no way to send raw bytes, you often end up encoding them with base64 to safely send them inside JSON. Worse, there is no single source of truth for the API schema when working with JSON. OpenAPI tries to help with this, but it's not used very widely in the industry, and mostly you end up having to read the API documentation and then making the adjustments based on what you're actually seeing from the server, because how often does the API documentation match the real server behaviour? JSON itself is not an efficient data transport, resulting in both relatively expensive marshalling and relatively large payloads. Worst of all, because there is no single source of truth, we have no idea about the compatibility guarantees of these APIs.
+: So what can we use instead?
+: 04:00
+
+## Protobuf
+
+- Fast
+- Binary format
+- Well typed
+- Large ecosystem
+- Backwards/forwards compatibility
+- Multi-language code generation
+- Hard to use?
+
+.code bare.proto
+
+: Protobuf started as an internal project within Google and was later open sourced. It's designed with the shortcomings of existing transport encodings in mind. It's fast, it uses a binary format on the wire, it's well typed, it has a large ecosystem surrounding it, and most importantly, it has backwards and forwards compatibility built in! Using protobuf, as opposed to JSON, requires specifying the API explicitly in the protobuf file format. Those files are then used to generate the code used by the clients and servers, to guarantee the API contract is upheld. It's commonly said that protobuf has a steep learning curve, and I hope to challenge that today!
+: But the most overlooked feature of Protobuf is the backwards and forwards compatibility guarantees.
+: 05:00
+
+## Compatibility
+
+- New server can support old clients
+- New clients can support old servers
+- Protobuf spec defines compatible changes
+- Buf can tell you if your change was compatible
+
+.code check-breaking.sh
+
+: What do we mean by forwards and backwards compatibility? It essentially means that a server can evolve its schema without worrying about breaking clients, and vice versa! If we evolve a protobuf schema in a backward compatible way, old clients and servers will keep working. So how do we know what is and isn't a backwards compatible change? The long answer to that question is that you can read the protobuf spec and documentation and find exactly what changes are allowed. The short answer is that you can use buf for that! This command checks if your currently checked out code was changed in a compatible way against the local git branch master. This is one of the most common ways to check compatibility with buf, but we support many other options too.
+: So what benefits do we gain from evolving our schema in a compatible way?
+: 06:00
+
+## Benefits of compatibility
+
+- Iterate on client and server independently
+- Formalise server guarantees in schema
+- Formalise client expectations in schema
+- No more accidental breaking of clients
+
+.image ok.png 300 _
+.caption _Ok_ by [[https://github.com/tenntenn][Takuya Ueda]]
+
+: When we can guarantee compatibility between servers and clients, we get a lot of benefits for free. We can keep iterating on the server side without worrying about breaking users. We can release new clients without worrying about taking down our deployments to upgrade them in-step, since we know new clients will work with old servers. We formalise the server guarantees and the client expectations in the schema, and we never have to worry about breaking clients unexpectedly. We also signal to our users that they can keep consuming our API safely forever without worrying that we will break them.
+: But protobuf on its own isn't a replacement for HTTP/JSON. So what do we use protobuf with?
+: 07:00
+
+## gRPC
+
+- Open Sourced by Google in 2016
+- Protobuf over HTTP/2
+- Streaming support
+- Multi-language code generation
+- Increasingly popular in Go community
+- Donated to CNCF
+- HTTP/1.1 parallel in Twitch Twirp
+
+.image grpc.png 150 _
+.caption Source: [[https://grpc.io][gRPC.io]]
+
+: That's where gRPC comes in. gRPC is an opinionated RPC framework. It also came out of Google, and uses protobuf by default but can technically be used with any transport encoding (including JSON!). It can essentially be described as Protobuf over HTTP/2 with some extras, such as streaming, included. It has gained a lot of traction in the Go community, especially to solve the question of communications between microservices in large scale deployments. Using HTTP/2 can lead to certain efficiency wins, like multiplexing requests over single TCP connections, more efficient headers, etc. Most importantly though, it adds the missing network communications part to the protobuf schema. Many of the benefits of gRPC can be gained by doing a similar sort of code generation with just a HTTP/1.1 client. This is the idea behind the Twitch Twirp framework. Today we'll focus on gRPC.
+: So how do we use gRPC with protobuf?
+: 08:00
+
+## Using gRPC with Protobuf
+
+- Protobuf services
+
+.code service.proto
+
+: Using the protobuf file starting point we saw earlier, we simply add the service definitions. Here we can see an example of a single return response a.k.a unary RPC called AddUser. We can also see an example of a server side streaming RPC called ListUsers. This is a bit contrived, it's not always suitable to use streaming, but you could theoretically use it for something like listing users. You can also see that we added the request and response message types for each of these RPCs. Now if we generate this file using the gRPC generator we'll get the server and client definitions generated with it.
+: So how can we use buf to work with protobuf?
+: 09:00
+
+## Buf
+
+- Protobuf file linting
+- Breaking change detector
+- File generation
+- (Soon) Buf Schema Registry
+- (Future) VSCode plugin, much more!
+
+.image buf.png _ 250
+.caption [[https://buf.build/][buf.build]]
+
+: When we say buf we're talking about the open source CLI, naturally called buf. We already saw how we can use buf to ensure our changes are made in a backwards compatible fashion. It can also do protobuf file linting, ensuring best pratices are applied consistently in your codebase. We've also recently added protobuf file generation, so you can perform basically all your protobuf work with buf. The most interesting part of all though, is putting all of that together and providing a schema registry from which you can pull and push protobuf modules, finally bringing the protobuf ecosystem into the 21st century with modern dependency versioning. It's not done yet, but we're working hard on it! Another thing that we'd like to do eventually is a protobuf language server solution for VSCode and other editors.
+: Alright, we've got a basic intro, lets do some coding.
+: 10:00
+
+## Lets put this all into practice!
+
+: 29:00
+
+## Conclusion
+
+  - We've learned about the shortcomings of HTTP/JSON
+  - We've learned about Protobuf and gRPC
+  - We've learned to use `buf` to work with Protobuf
+  - We've designed a new API from scratch
+
+.image gopheracademy.png _ 300
+.caption _GopherAcademy_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: 30:00
+

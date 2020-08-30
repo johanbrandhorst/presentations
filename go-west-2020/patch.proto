@@ -1,0 +1,14 @@
+syntax="proto3";
+
+import "google/protobuf/field_mask.proto"
+
+message UpdateUserRequest {
+  User user = 1;
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message User {
+  // Output only.
+  string id = 1;
+  google.protobuf.Struct metadata = 2;
+}

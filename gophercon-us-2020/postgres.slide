@@ -1,0 +1,444 @@
+# A Journey to Postgres Productivity
+13th of November 2020
+
+Johan Brandhorst
+Buf
+@johanbrandhorst
+https://jbrandhorst.com
+
+: I'm Johan, I'm a maintainer of various open source projects, including the grpc-gateway and Improbable's grpc-web. I've contributed to the Go standard library and I run a blog writing mainly about Go and gRPC. I work at Buf, where we are remaking the API economy. I'm here today to talk about state and postgres. Lets dive right in!
+: Next up: Overview
+: 00:30
+
+## Today we will
+
+  - Talk about state management
+  - Talk about databases
+  - Look at some tooling
+  - Dive into some practical examples
+  - Become Postgres rockstars
+
+.image witch.svg 250 _
+.caption _Witch_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: We're going to start with the question why? What do we mean by state management and why do we need it? We're going to move on to talking about a few different state management solutions, and discuss their various strengths and weaknesses. We're then going to dive deeper into my state management solution of choice, Postgres. Once there, we're going to explore some of the tooling available, and narrow it down to the pieces I consider essential to becoming productive with postgres. At the end of this talk, we'll all be postgres rockstars.
+: Next up: Why do we need all of this?
+: 01:00
+
+## State management
+
+  - The reason we can't have nice things
+  - The reason we can have some things
+
+.image organise.jpg 400 _
+.caption _More_ _Lego_ by [[https://unsplash.com/photos/kn-UmDZQDjM][Xavi Cabrera]]
+
+: State management is the source of a lot of problems we have to deal with as programmers. If we didn't need to worry about state, we'd be able to effortlessly parallelise computation with no need for synchronisation, no worrying about chronological ordering, etc. It's basically the reason we can't have nice things. However, it is also the reason we can have some things. Facebook and Twitter wouldn't be much without the ability to share text and images, and Google would struggle to be useful if it had to search the whole internet every time you made a search. State management is, unfortunately, here to stay. So we need to store data.
+: Next up: How do we store data?
+: 01:30
+
+## In memory
+
+  - Easy
+  - Fast access
+
+.code types.go
+
+  - What if we want to update the application?
+  - What if we want run several applications?
+
+
+: We could just store things in memory. Create a struct, store some data in a map or slice like this, and we're done. Storing in memory also means it's super fast to access! But what about when we need restart our application to update it? All our data is lost. What about when we want to run several applications? They can't share memory between each other. Storing data in-memory is sometimes useful, but it's not a great solution for many problems. So in-memory is out.
+: Next up: What about just storing the files on the filesystem?
+: 02:30
+
+## The filesystem
+
+  - Persists through restarts
+  - Can be shared between processes
+
+.code filesystem.go
+
+  - Marshaling format?
+  - Reading data efficiently?
+  - Filtering results?
+
+: The files on the filesystem persist across application restarts, and can be shared between processes, problem solved! Sure, things aren't as fast as when we were storing data in-memory anymore, but that was a compromise we had to accept. Using the filesystem is not a terrible idea for some problems, but it also has its shortcomings. As you can see in this snippet, we've already had to make a decision about how to store data on the filesystem. What about when we want to find all users who are over a certain age? Or all users whose name starts with "T"?
+: Next up: This, and many other problems, are solved for us when we use a purpose-built Data Store.
+: 03:00
+
+## Data stores
+
+  - Persisting data
+  - Storing large amounts of data
+  - Concurrent access
+  - Filtering results
+  - Much more...
+
+.image librarian.png 250 _
+.caption _Nerdy_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: Generally, as a programmer, any time you need to store something for longer than the lifetime of your application, you should turn to a data store. These are applications that have solved many of the hard problems associated with persisting large amounts of data, ensuring safe concurrent access, easy access to read data, filtering of results, etc.
+: Next up: Let's take a look at a few different types of data stores.
+: 03:30
+
+## Data storage solutions
+
+  - In-memory key-value stores
+  - Document stores
+  - Relational databases
+
+.image solutions.svg 300 _
+.caption _GopherNotes_ _Gopher_ by [[https://twitter.com/marcusolsson][Marcus Olsson]]
+
+: Data stores can be broadly split into 3 categories, all with different properties and use cases. These are in-memory key-value stores, document stores and relational databases. There are of course exceptions to these classifications, but we're only going to cover these 3 today.
+: Next up: What is an in-memory key value store?
+: 04:00
+
+## In-memory Key-value stores
+
+  - Good for caches
+  - Very fast
+  - Less structured
+  - Limited to size of memory
+  - Memcached, Redis
+
+.image redis.svg 200 _
+.caption Source: [[https://redis.io/][Redis]]
+
+: In-memory key value stores are typically implemented to allow quick access to small amounts of data tied to a specific key. You can think of them as a distributed Go map. They are often used as caches because of their speed, but they are not meant to hold very complex data structures and often don't support sophisticated filtering of results. They are also obviously limited to whatever the size of your machine memory is. Examples of key values stores are Memcached, Redis and more. Having said all of that, a key value store may well suit your needs, whatever they are. Speaking personally as someone who implemented sophisticated logic in Redis using its Lua engine, go nuts, but make sure you're optimising for the right thing. I was not.
+: Next up: OK, but what is a document store?
+: 05:00
+
+## Document stores
+
+  - NoSQL
+  - Filesystem
+  - Fast
+  - Unstructured
+  - Some compromise safety for speed
+  - MongoDB, Couchbase, ElasticSearch
+
+ > _**MongoDB lost data and violated causal [sic] by default**. Somehow that became "among the strongest data consistency, correctness, and safety guarantees of any database available today"!_
+  
+ >  _- [@jepsen_io](https://twitter.com/jepsen_io/status/1255867265997844484)_
+
+: Document stores typically use the filesystem and sit somewhere between a key value store and relational database in terms of performance. These are usually also so called "NoSQL" data stores, which means that they don't require a pre-defined schema to work. Basically, you insert some JSON, and you've got your data store. You can insert more JSON of the same format, and quickly read it out again. These data stores are normally built with large scale deployments in mind, and automatically split the data amongst its servers. The compromise that some document stores make to provide high performance is that some data may be missing, or incorrect. MongoDB, Couchbase and ElasticSearch are examples of document stores. MongoDB especially has gained some fame recently for its dubious claims about data consistency. Renowned database researchers Jepsen.io had the following to say about MongoDB: MongoDB lost data and violated causal consistency by default. I don't want to throw shade on all document stores, but maybe don't use MongoDB if you value data accuracy.
+: Next up: Finally, we have relational databases.
+: 06:00
+
+## Relational databases
+
+  - SQL for writing and reading
+  - Filesystem
+  - Consistency guarantees
+  - ACID transactions
+  - Oracle, Microsoft SQL Server, MariaDB, MySQL, PostgreSQL, CockroachDB
+
+.image MySQL.svg 250 _
+.caption Source: [[https://www.mysql.com/][MySQL]]
+
+: These use the filesystem for storing data, provide strong data guarantees and use the Structured Query Language (AKA SQL) for inserting and reading data. They are often backed by decades of development and testing. They also tend to provide so-called ACID transactions, which basically means that your data will not get corrupted if something unexpected happens while you're writing. Naturally, speed is a secondary concern after data integrity, so they are normally not as fast as a document store. Oracle, Microsoft SQL Server, MariaDB, MySQL, Postgres and CockroachDB are examples of relational databases. Relational database trivia; MySQL and MariaDB are created by the same author, and they are both named after one his daughters, My and Maria respectively. So MySQL should really be pronounced MySQL.
+: Next up: Thanks, I hate it.
+: 07:00
+
+## What should I use?
+
+: Alright, with that background out of the way, lets talk business; which data store should we use?
+
+## 
+
+.image postgres.svg _ 500
+.caption Source: [[https://www.postgresql.org/][PostgreSQL]]
+
+: Postgres, obviously.
+: 07:00
+
+## Postgres
+
+  - Proven track record
+  - Free
+  - Open Source
+  - Good Go library support
+  - Need scale? CockroachDB
+  - Good cloud support
+
+.image ok.png 200 _
+.caption _Ok_ by [[https://github.com/tenntenn][Takuya Ueda]]
+
+: For most problems, postgres is a great alternative. It's been around for over 20 years, is free, open source, and used by thousands of companies worldwide. Importantly for us, it also has excellent Go library support. For basically anything but in-memory caches I tend to lean on postgres. If you need to scale your database to several machines, CockroachDB implements the same wire protocol as postgres so can often be used as a drop-in replacement. Postgres can be run on its own in the cloud, or you can use one of the managed postgres solutions, which exist in pretty much every cloud provider. I like that defining the database schema makes you think about how the data fits together, it's a bit like going from writing python to writing Go, and it can save you a lot of trouble in the long run. So, how do we use postgres with Go?
+: 07:30
+
+## database/sql
+
+  - General purpose SQL abstraction
+  - Requires specialized drivers
+  - Built-in connection pooling
+  - Special types for NULL handling
+
+.code stdlib.go
+
+: Naturally, the first place we look is the standard library, and indeed we are not disappointed - Go has a few packages dedicated to work with SQL databases. The database/sql package is a great starting point and is designed to work with any SQL database by offloading database-specific behaviour to specialized third party drivers. In theory, this means you can simply change the driver when you want to use a different database. Whether that theory holds up in practice is another question. It also comes with a connection pool and special types for handling NULL in rows returned from the database. This example here is an abbreviated version of one from the SQL page on the Go GitHub wiki.
+: So what's the problem if we can just use the standard library?
+: 08:30
+
+## Problems with standard library
+
+  - Enforced side-effect-by-import
+  - Not fully type safe
+  - (*sql.Rows).Close() easily forgotten/misused
+  - Misuse can lead to SQL injection vulnerabilities
+
+.code stdlib_annotated.go
+
+: Let's break down what's happening in this code snippet. The first thing we see is a blank import, which means any effect this library has on your application is through the init function, a notoriously obscure and often confusing mechanism that is regularly avoided entirely by users. How do you, as a user, from that import, find out what the library does to your application? You have to read through the whole source of the library to find the init function. Next we have the generic string parameter to the sql.DB methods. A novice user might use something like fmt.Sprintf to fill this string with some user supplied information, without realising that this opens their application up to SQL injection, one of the most devastating security vulnerabilities possible in the application layer. This is not an error, though the docs make it reasonably clear that you should use positional parameters to add user supplied data. That brings us to the next point. Want to know that the type you're passing to the method matches the datatype of the positional parameter? Not with the standard library API,it's empty interfaces all the way. Then there's the various error methods, rows.Close and rows.Err. I hope you don't forget to call them BOTH, in the right order, and checking their errors respectively, something this example doesn't actually take care of in the case of rows.Close.
+: OK, so the standard library API doesn't protect us from certain errors. What other tooling is there to help with this?
+: 10:00
+
+## Postgres tooling
+
+  - ORMs
+  - Generators
+  - Query builders
+  - Drivers
+  - Migrations
+  - Testing
+
+.image question.png 200 _
+.caption _Question_ by [[https://github.com/tenntenn][Takuya Ueda]]
+
+: Unfortunately, we're presented with a myriad of options for tooling and choosing the right tools requires a lot of testing and evaulation. Should we use an ORM? Should we generate the code? Should we use a query builder? What driver should we use? How do we perform database version migrations? How do we gain confidence in our code through testing? Lets take a quick look at some of the types of tools available.
+: 10:30
+
+## Object-relational Mapping (ORM)
+  
+  - Hides the database behind user friendly API
+  - Can lead to inefficient queries
+  - Not a great fit without generics
+  - Can't expose all database features
+  - No need (or opportunity) to learn SQL
+
+.image witch-too-much-candy.svg 250 _
+.caption _Witch_ _Too_ _Much_ _Candy_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: You've probably heard of Object Relational mapping (ORM) libraries, of which there are many. These try to provide an interface to the database that doesn't require writing SQL, which ca be very appealing to beginners. However, ORMs often become messy when working with more complicated data structures, and can lead to inefficient queries being made to the database. Furthermore, the lack of generics in Go means they generally have to sacrifice static typing. ORMs are also often unable to support all the features of the databases they abstract away, as they naturally aim to provide a database agnostic interface. Working with an ORM can feel a little bit like magic when it works, but I recommend learning to use SQL directly, it will pay dividends in the long run.
+: 11:30
+
+## Generator libraries
+
+  - Hides the database behind generated types and functions
+  - Type safe interfaces
+  - Requires source markup
+  - Often limited in their database support
+
+.image power-to-the-masses.svg 250 _
+.caption _Power_ _To_ _The_ _Masses_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: Then there are generator libraries. These will generally require you to provide some sort of markup to define your data structures. It could be SQL, it could be in the form of Go code, or maybe something else. It will then generate structs and helper functions for writing and reading data to the database. They are able to provide a type safe interface to the database, as opposed to an ORM, but it's hard for a generator to cover all the features supported by Postgres, so it's usually a non-starter for me. More on that later!
+: 12:00
+
+## Query builders
+
+ - Fluent, builder-pattern interface
+ - Easy to use
+ - Automatically parametrises queries
+ - Not always type safe
+
+.image rocks.png 300 _
+.caption _Gopher_ _Rocks_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: Finally we have query builders. These are using the so called builder pattern (AKA a fluent interface). They're usually easy to use, and especially when you have access to editor autocompletion, they can feel quite magical to work with. They automatically parametrise queries, so we don't have to worry about SQL injection. However, because they have to be designed to work with such a wide range of different queries and types, they have to sacrifice type safety, so you often end up with a lot of empty interface parameters. Query builders shine when you want to build very dynamic queries.
+: 13:00
+
+## What tooling should we use?
+
+: Alright, so now that we've been introduced to many of the alternatives, what tooling _are_ we going to use? I know you're not watching this talk to hear about theory, so I'm going to give you my own recommendations.
+: 13:30
+
+## The five pillars of our Postgres stack
+
+  - Driver (jackc/pgx)
+  - Migrations (golang-migrate/migrate)
+  - Query generator (kyleconroy/sqlc)
+  - Dynamic query builder (Masterminds/squirrel) 
+  - Testing (ory/dockertest)
+
+.image pentagon.svg 250 _
+.caption _Pentagon_ by [[https://www.flaticon.com/authors/freepik][Freepik]]
+
+: After years of trying different libraries and methods for interacting with Postgres, I had identified 4 tools that complemented each other very well, each solving a separate issue. They were: pgx, golang-migrate, squirrel, and dockertest. I was happy, but it's important to never stop learning, and I was recently introduced to another alternative tool that I'm so pleased with that I'm going to add it to this list of recommendations. That tool is sqlc. Lets take a closer look at each of these tools and how they fit together.
+: 14:30
+
+## Example repo
+
+.link https://github.com/johanbrandhorst/grpc-postgres github.com/johanbrandhorst/grpc-postgres
+
+: We're now going to be diving in and out of my example repo a bit, so if you want to, feel free to clone my example repo now. It should come as a surprise to no-one who has seen any of my other talks that my postgres example repo is also a gRPC server. I'll give you a little more time to write down the name. Lets take a quick look at the structure of my example repo.
+: Next: Let's look a little closer at my database drive of choice, jackc/pgx
+: 18:30
+
+## jackc/pgx
+
+  - Pure Go Postgres database/sql driver
+  - Exposes both database/sql and custom API
+  - Fast
+  - Extensive Postgres type support
+
+.code pgx.go
+
+: pgx is a pure Go driver for the standard library database/sql interface that also implements its own interface to squeeze that extra bit of speed out when you need it. I tend to use the slightly slower standard library interface for compatibility. It has support for over 70 postgres types, such as uuid, hstore, json, bytea, interval, and arrays. It can be used with sql.Open, but it also supports a custom type for configuring things like TLS and debug logging of queries, as can be seen here. The logging interface logs all queries, and has adapters for popular logging libraries such as logrus, zap, zerolog and log15. You probably don't want this turned on all the time, but it can be a great help when debugging some queries.
+: Next up: Lets take a closer look at the custom API
+: 19:30
+
+## Use custom API at any time for speed
+
+.code pgx_conn.go
+
+```
+$ go test -bench=. -run=^$ -v ./users
+BenchmarkAddUsers
+BenchmarkAddUsers-8       442702              3335 ns/op
+BenchmarkAddUser
+BenchmarkAddUser-8         11847             95621 ns/op
+PASS
+ok      github.com/johanbrandhorst/grpc-postgres/users  23.603s
+```
+
+: At any time, if you need to do something that could take advantage of the extra speed offered by the custom API, such as when you want to insert a large amount of data, you can acquire a pgx.Conn from an *sql.DB as seen in this example. You can then do the intensive operation, while maintaining the use of the normal database/sql interface for familiarity and compatibility elsewhere. The benchmarks here are from two alternative methods implemented in my example repo. Lets take a closer look.
+: Next: Before we dive into the next tool, lets talk a little about migrations.
+: 23:00
+
+## Migrations
+
+  - Helps set up the initial database schema
+  - Helps evolve existing data when requirements change
+  - Helps rolling back unsuccessful changes
+
+.image hiking.svg 350 _
+.caption _Hiking_ by [[https://twitter.com/egonelbre][Egon Elbre]]
+
+: When I first started learning about databases it wasn't clear to me why you needed migrations. Migrations are, in the simplest case, useful for migrating from nothing to an initial database schema and back. We're going to look at an example of this in a minute. The second use case for migrations is when you have some existing data, but you need to evolve the schema, such as adding a column to an existing table, or adding another table altogether, and you need to do something to the existing data, such as setting a value in the new column based on current values, or inserting a row in the new table. The third thing it can be useful for is when a planned change didn't go as well as desired, and you need to roll back the changes.
+: 24:00
+
+## golang-migrate/migrate
+
+  - Supports many different sources (filesystem, S3, bindata)
+  - Supports Postgres, MySQL, CockroachDB and more
+  - Can be run in-application or standalone
+
+.image build.png _ 300
+.caption _Go_ _Build_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: My choice of migration library is golang-migrate. It supports reading migration files from a number of sources and writing to a number of different databases, though of course we only care about postgres for this example. It can be run both via a command line interface or inside an application on startup. The examples we're going to look at today will be using it inside the application. Note that this means that we are tieing the version of the database schema to the application, which means you have to be careful if you're running several applications against the same database. If you're using a single client per database it is the easiest way of managing migrations though.
+: 24:30
+
+## Writing migrations
+
+  - Create migration files
+
+  ```
+  001_initial_setup.up.sql
+  ```
+
+.code initial_setup.up.sql
+
+  ```
+  001_initial_setup.down.sql
+  ```
+
+.code initial_setup.down.sql
+
+: First up, we have to write migration files. In the simplest case, this is just the initial database schema. If your application is small and doesn't need to change, this may be all you need. Even if you don't anticipate that you will need to migrate data in the future, I would still recommend using migrations from the start, just because they allow you to easily control the state of the database schema. The initial up migration creates the first table or tables, and the initial down migration is an exact inverse of that, that is, it deletes the tables again, so there is nothing in the database. This adds another benefit, which is that you can clean out the database state by just running the migrations down to 0. So lets add an up migration here that creates a single table, and a down migration that deletes it again. Note the naming of the files, they need to be named so that the migrations can be ordered lexicographically. It's often accomplished by using a numbered prefix, as seen here.
+: 25:30
+
+## Integrating the migrations
+
+  - Generate bindata package
+
+  ```shell
+  $ go-bindata -pkg migrations -ignore bindata -nometadata -prefix migrations -o ./migrations/bindata.go ./migrations
+  ```
+
+  - Import into application and run at connection time
+
+.code migrate.go
+
+: Next up we have the question of how to integrate the migrations into our application, and for that we will use the bindata generator. If you've never heard of go-bindata before, it's basically a way of taking some files on the filesystem and making the content importable as a go package. This means we no longer depend on the filesystem, so an application can still be shipped around as a single executable. We can take this command here, which runs go-bindata to create the bindata.go file, stick it in a Makefile or a go generate directive and then import it and use it in our migrations, like so. This reuses an existing *sql.DB to do the migration to version 1, creating our table. Lets take a look at how this is integrated in the example repo.
+: Next: Once we have a driver and a database schema, we can start writing queries. For that, we will use sqlc.
+: 28:00
+
+## kyleconroy/sqlc
+
+  - Generates idiomatic Go code from SQL
+  - Built on the real Postgres query parser
+  - Generation time type checking of queries
+  - Supports golang-migrate style schema migration definitions
+
+.image sqlc.png 300 _
+.caption Source: [[https://sqlc.dev][_sqlc.dev_]]
+
+: sqlc is nothing short of a landmark achievement in Go database APIs. The summary is that it generates idiomatic Go code from SQL queries, but just how it does that is the really interesting part. I mentioned before how generators are often not able to support the full capabilities of the databases they are built on. How does sqlc work around that issue? It includes the real Postgres query parser as part of its parsing. This allows it to parse anything that Postgres would consider valid SQL. This was obviously a tremendous amount of work, but it also works incredibly well. It prevents you from a whole class of errors by matching your SQL queries against your schema definitions. Lets take a look at what that looks like in the example repo.
+: Next: But there are some things sqlc still struggles with
+: 35:00
+
+## Dynamic query building
+
+  - Listing resources
+  - Reverse order
+  - Dynamic filtering
+  - [Issue](https://github.com/kyleconroy/sqlc/discussions/364) lists two options:
+    - Write out one SQL query for each variant
+    - Use SQL CASE statements
+
+: Sometimes we want to build more dynamic queries, and we don't know what column filters we want to use while we're writing the code. Sometimes we want to reverse the order, sometimes we want to limit it to a variable number, and sometimes we want to filter by a specific value of a column. How do we do that when we're required to write out the exact queries ahead of time? There was a discussion on the issue tracker and right now it seems there are two options; write a SQL query for each of the variants, or use SQL CASE statements. Both end up quite annoying, and in the end my recommendation is not to use sqlc for these types of queries, at least not until there is a better solution for this problem.
+: Next: To that end, I've got another querying tool in mind.
+: 36:00
+
+## Masterminds/squirrel
+
+  - Builder pattern query creator
+  - Supports most of SQL
+  - Sacrifices some type safety
+  - Automatically creates positional parameters
+
+.code squirrel.go
+
+: Squirrel is a query builder utilizing the builder pattern to add properties to the query. The builder pattern isn't something you see often in Go because it sacrifices static typing a lot of the time, and squirrel is no exception. I would generally not recommend the builder pattern, but squirrel strikes a very good balance between power and type safety. The code on the screen shows a very simple example of using squirrel. Parameters automatically become positional parameters which prevents SQL injection vulnerabilities. It aims to support most of the SQL standard. This can be extended to arbitrarily complex queries with joins, postgres specific suffixes, etc. This example creates a query which selects all rows from the users table which have the name "Johan". We then convert it into a query string and positional variables with ToSql.
+: Next up:  With that introduction out of the way, let me show you how this is used the example repo.
+: 38:00
+
+## Testing
+
+: Now we've got the application up and running talking to the database using pgx, writing migrations with golang-migrate and writing queries with sqlc and squirrel, there is still one more piece to the puzzle. How do we test that our code does what we want it to? There exists several solutions to testing code that interacts with a database, such as mocking the database/sql interface, or using an interface and perform testing against that, but I'm here to tell you that there is a better option.
+: Next up: What if we could test against a real database?
+: 39:00
+
+## ory/dockertest
+
+  - Dynamically creates containers for testing
+  - Uses the Docker API directly, no binary dependencies
+  - Automatically tear down containers after tests finish
+  - Can wait for container to start up
+  - Supports advanced use cases like file upload and log extraction
+  - Runs the same both in CI and in local testing
+
+.image dockertest.png
+
+.caption Source: [[https://github.com/ory/dockertest][Dockertest Github]]
+
+: Dockertest does exactly what it says on the tin, it allows you to test against a docker container. This allows us to run tests against a real postgres server. It can be called from normal test code like any go library, and uses the Docker API under the hood, so all you need is a local docker socket. You can configure the tests to automatically clean up containers after finishing, or leave them up to allow for debugging after tests run. It comes with a convenience function to test that a container has started, and it can support advanced use cases like uploading files to the test containers and reading the log output for debugging. It works just as well in local testing and CI, so no more need for CI specific container configuration. The only requirement is that your CI runner has access to a local docker socket so that it can both start containers and access them via the local network. In CI, this can mean using custom runners, or using something like a CircleCI machine runner. Let's take a look at a real example in the example repo.
+: 44:00
+: Next: Conclusion
+
+## Conclusion
+
+  - We've learned about state management
+  - We've learned about different storage solutions
+  - We've learned to use `pgx`, `golang-migrate`, `sqlc`, `squirrel` and `dockertest`
+  - We've become Postgres rockstars
+
+.image gopheracademy.png _ 300
+.caption _GopherAcademy_ by [[https://twitter.com/ashleymcnamara][Ashley Willis]]
+
+: In summary, we started out by looking at state management and why we need data stores. We learned about a few different data storage solutions, such as redis, elasticsearch and postgres. We learned about the 5 libraries I consider essential to becoming proficient with Postgres in Go, that is pgx, golang-migrate, sqlc, squirrel and dockertest, and looked at an example that incorporated all the different tools. Putting all of it together, we've become postgres rockstars, ready to be productive with postgres the next time we need to store some state. I hope this talk has given you the confidence and desire to try out postgres with Go, it's something I enjoy every time I do it.
+: 45:00

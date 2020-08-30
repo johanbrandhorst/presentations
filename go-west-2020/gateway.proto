@@ -1,0 +1,15 @@
+service UserService {
+  rpc AddUser(AddUserRequest) returns (User) {
+    option (google.api.http) = {
+      // Route to this method from POST requests to /api/v1/users
+      post: "/api/v1/users"
+      body; "*"
+    };
+  }
+  rpc ListUsers(ListUsersRequest) returns (stream User) {
+    option (google.api.http) = {
+      // Route to this method from GET requests to /api/v1/users
+      get: "/api/v1/users"
+    };
+  }
+}

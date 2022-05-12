@@ -11,13 +11,17 @@ Johan Brandhorst-Satzkorn
 - Create an API service
 - Explore some lesser known features
 
-: Today we're going to talk about an open source project that I've been a maintainer of for the last few years, the gRPC-Gateway. We're going to do that by building a basic API service, the HashiPet API. We'll then explore some lesser known features of the gRPC-Gateway which may be useful to existing users. But to do that, we're going to tell a story, and every story needs a protagonist. So lets meet our protagonist. Our protagonist is the most eligible bachelor of the talk-pets slack channel. I am, of course, talking about Floyd.
+.image witch.svg 300 _
+.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+
+: Today we're going to talk about an open source project that I've been a maintainer of for the last few years, the gRPC-Gateway. We're going to do that by building a basic API service, the HashiPet API. We'll then explore some lesser known features of the gRPC-Gateway which may be useful to existing users. But to do that, we're going to tell a story, and every story needs a protagonist. So lets meet our protagonist, the most eligible bachelor of the talk-pets slack channel. I am, of course, talking about Floyd.
 
 * Floyd
 
 .image floyd.jpeg 500 _
+.caption Floyd, full-stack engineer
 
-: Floyd, if you are not familiar with him, is a pig who lives with Justin Herreman. He featured in a Micro Conversation last week, if you didn't watch that make sure to go back and look at the recording, it was great. Make sure to join the talk-pets channel as well, it has undoubtedly been one of the highlights of the Slack so far for me. Anyway, Floyd is a full-stack engineer and he's long wanted to build an API for the talk-pets channel, so lets help him do that today.
+: Floyd, if you are not familiar with him, is a pig who lives with Justin Herreman. He featured in a Micro Conversation last week, if you didn't watch that make sure to go back and look at the recording, it was great. It was all belly rubs and oinks. Make sure to join the talk-pets channel as well, it has undoubtedly been one of the highlights of the Slack so far for me. Anyway, Floyd is a full-stack engineer and he's long wanted to build an API for the talk-pets channel, so lets see how he can do that today.
 
 * A new API service
 
@@ -25,7 +29,8 @@ Johan Brandhorst-Satzkorn
 - Floyd lead engineer
 - Floyd uses the HashiCorp stack
 
-.image hashicorp_stack.png 400 _
+.image hashicorp_stack.png 350 _
+.caption HashiStack
 
 : Floyd has decided that there is no reason to abandon the long-honored tradition of prefixing anything even slightly related to HashiCorp with the "hashi"-prefix, so naturally we're building a HashiPet API. Floyd will be the lead engineer naturally, and he's a big fan of the HashiCorp suite of products. He's done a bit of Go and enough JavaScript and HTML to be dangerous, but he prefers to work in the backend. He's been doing some perusing of the HashiCorp open source products and noticed a trend - some of them are using a technology called the gRPC-Gateway to build their HTTP APIs. What is the gRPC-Gateway?
 
@@ -34,20 +39,22 @@ Johan Brandhorst-Satzkorn
 - Translates gRPC to HTTP/JSON and back
 - Used by many HashiCorp products (Boundary, Waypoint, HCP)
 - Generates server-side and client-side SDKs
-- Floyd likes well-typed APIs
+- Floyd wants to use the gRPC-Gateway
 
 
 .image gateway.png 300 _
+.caption Technical mumbo-jumbo
 
-: The gRPC-Gateway is technically a way to translate something called a gRPC API to a HTTP/JSON API and back, but for our purposes, we can consider it to be more of a framework for building well-typed HTTP APIs using Protocol buffers. If any or all of that sounded like technical mumbojumbo, don't worry, Floyd is going to dig into this practically in a moment which will hopefully help paint more of a picture. It's used by Boundary, Waypoint, HCP and many other non-HashiCorp projects for their HTTP APIs, both public and private. It lets you generate server and client SDKs from your API definitions, making it easy to ensure that the client and server is kept in sync. Floyd has done his research and decided to use the gRPC-Gateway for the new HashiPet API.
+: The gRPC-Gateway is technically a way to translate something called a gRPC API to a HTTP/JSON API and back, but for our purposes, we can consider it to be more of a framework for building well-typed HTTP APIs using Protocol buffers. If any or all of that sounded like technical mumbojumbo, don't worry, Floyd is going to dig into this practically in a moment which will hopefully help paint more of a picture. It's used by Boundary, Waypoint, HCP and many other non-HashiCorp projects for their HTTP APIs, both public and private. It lets you generate server and client SDKs from a single source of truth, your API definitions, making it easy to ensure that the client and server is kept in sync as your API evolves. Floyd has done his research and decided to use the gRPC-Gateway for the new HashiPet API service.
 
 * Designing the API
 
-- Floyd wants to create a resource-oriented RESTful HTTP/JSON
+- Floyd wants to create a resource-oriented HTTP/JSON API
 - Pet is our resource
-- Create, Read, List and Delete
+- Create, Get, List and Delete
 
-.image rest.png 400 _
+.image rest.png 350 _
+.caption This phrase has lost all its original meaning
 
 : So lets see what this looks like in practice. Floyd has read about resource-oriented RESTful APIs and would like to create one of those, thank you very much. To do that, he'll start by identifying the primary resource, the pet. He'll then implement the 4 simplest methods: Create, Read, List and Delete. Lets take a look at what that looks like!
 
@@ -68,23 +75,26 @@ Johan Brandhorst-Satzkorn
 
 * Penny
 
-- Queen of talk-pets
-- *Not* the best
+- Queen of *#talk-pets*
+- _Not_ the best
 
 .image penny.jpeg 400 _
+.caption Penny, red team engineer
 
 : Penny, who lives with Caroline, is great, she always poses with her beans on Toebean Tuesday, but she is decidedly NOT the best. The current API design would allow Penny, also an accomplished red team engineer, to make a requests to her profile that lets her set herself to the best. We need to hide the field. To do that, we'll use the gRPC-Gateway's internal field hiding capabilities. Let's see what that looks like.
+
+* Hiding internal fields
+
 : Finally, Floyd wants to make a web page.
 
 * Present the Pets
 
 - Serve a page with all the pets
 
-.image standing.svg 400 _
-.caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
+.image web.png 300 _
 
-: Floyd wants to finish the API off with a method that's not really restful or resource-oriented, because he knows just enough HTML to be dangerous, and he thought it would be nice with a page that could show all the pets together. To do that, he'll use the gRPC-Gateway HTTPBody handling. This gives Floyd complete control over what gets written in the response, as we'll see.
-: Lets cover a few of the other things that the Gateway is capable of that Floyd didn't have time for this time.
+: Floyd wants to finish the API off with a method that's not really restful or resource-oriented, because he knows just enough HTML to be dangerous, and he thought it would be nice with a page that could show all the pets together. To do that, he'll use the gRPC-Gateway HTTPBody handling. This gives Floyd complete control over what gets written in the response, as we'll see. Let's take a look at what that looks like.
+: Let's cover a few of the other things that the Gateway is capable of that Floyd didn't have time for this time.
 
 * Others
 
@@ -98,8 +108,8 @@ Johan Brandhorst-Satzkorn
 .image scientist.svg 200 _
 .caption Gopher by [[https://twitter.com/egonelbre][@egonelbre]].
 
-: These include custom error handling, which lets you define exactly the shape of the errors returned. There's the forward response handler, which leaves you with complete control over the response sent to the client, useful for things like setting cookies. Using Go templates in your protobuf comments can let you dynamically build your comments. Field behavior lets you control what fields are marked as required and optional. Server side streaming can be used to stream updates to the client. A recent contribution added the automatic translation from a HTTP health check endpoint to the gRPC health checking protocol. These are only some of the little know features available in the gRPC-Gateway.
-: So lets wrap up what we learned today
+: These include custom error handling, which lets you define exactly the shape of the errors returned. There's the forward response handler, which leaves you with complete control over the response sent to the client, useful for things like setting cookies. Using Go templates in your protobuf comments can let you dynamically build your comments. Field behavior lets you control what fields are marked as required and optional. Server side streaming can be used to stream updates to the client. A recent contribution added the automatic translation from a HTTP health check endpoint to the gRPC health checking protocol. These are only some of the little known features available in the gRPC-Gateway.
+: So lets wrap up with what we learned today
 
 * Wrapping up
 
@@ -118,6 +128,7 @@ Johan Brandhorst-Satzkorn
 - Caroline Paine and Penny 🐱
 - Irena Rindos and Bear 🐺
 
-.image all.jpeg 400 _
+.image all.jpeg 370 _
+.caption The *#talk-pets* gang
 
 : Thanks to Justin, Caroline and Irena for having such wonderful pets and letting me share them for this presentation. I hope you enjoyed it, if you want to talk about the gRPC-Gateway or anything else API related, I'm always around on Slack and the tech-grpc channel is a great place for such discussions. Thanks for watching

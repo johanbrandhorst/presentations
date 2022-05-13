@@ -1,11 +1,10 @@
 * Set Do not disturb on Mac
 * Open VS code with hashipet
+* Open two terminals
 * Change $PS1
-* Change VS code theme
 * Change VS code zoom level
-* run make install
-* open main.go, example.proto, server.go
-* start presentation `present -notes -base .`
+* open hashipet.proto, server.go
+* start presentation `present -notes -base ../grpc-gateway`
 * open chromium at http://127.0.0.1:3999
 * open speaker notes
 * open chromium to http://0.0.0.0:8080/

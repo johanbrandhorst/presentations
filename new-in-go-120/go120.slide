@@ -1,0 +1,125 @@
+What's new in Go 1.20
+
+Johan Brandhorst-Satzkorn
+
+: Hi everyone, I'm Johan, I'm an engineer on the backend team and this the first of hopefully many meetings in a new format that I've called Go office hours. My plan for this meeting is to have a place to talk about our primary backend development language, explore new features and discuss things that relate to how we as a team use it. I'm looking for feedback on any and all parts of this, so don't hesitate to reach out to me if you have any ideas. I have created a spreadsheet for future meetings, so if you have any particular topic that you'd like covered, reach out to me and we'll schedule it. Today my plan was to have a presentation to talk about new features in Go 1.20, the latest Go release.
+: Next up: Let's dive right in
+
+* Profile guided optimization
+
+- 3-5% performance increase
+ 
+.code pgo.txt
+
+- Blog: [[https://go.dev/blog/pgo-preview][https://go.dev/blog/pgo-preview]]
+- Issue: [[https://go.dev/issue/55022][https://go.dev/issue/55022]]
+
+* Multi-errors!
+
+.play -edit multierror.go /START OMIT/,/END OMIT/
+
+* Experimental memory arenas
+
+- Enabled with GOEXPERIMENT=arena
+- Exposed through new "arena" package
+- Gives great control over allocations
+- Useful for protobuf/json
+- Likely to be removed or changed
+- Issue: [[https://go.dev/issue/51317][https://go.dev/issue/51317]]
+
+* New crypto/ecdh package
+
+- Elliptic curve Diffie Hellman key exhange library
+- Replaces most uses of crypto/elliptic
+
+.play -edit ecdh.go /START OMIT/,/END OMIT/
+
+- Issue: [[https://go.dev/issue/52221][https://go.dev/issue/52221]]
+
+* New net/http.ResponseController
+
+- Replaces need for interface type assertions
+- Particularly useful in HTTP middleware
+
+.play -edit responsecontroller.go /START OMIT/,/END OMIT/
+
+* New http.ReverseProxy Rewrite function
+
+- Replaces the Director function
+
+.play -edit reverseproxy.go /START OMIT/,/END OMIT/
+
+* New time package features
+
+- time.DateTime, time.DateOnly, time.TimeOnly
+- time.Time.Compare
+
+.play -edit time.go /START OMIT/,/END OMIT/
+
+- Issues: [[https://go.dev/issue/52746][https://go.dev/issue/52746]], [[https://go.dev/issue/45038][https://go.dev/issue/45038]]
+
+* New strings and bytes functions
+
+- Clone
+- CutPrefix
+- CutSuffix
+
+.play -edit strings.go /START OMIT/,/END OMIT/
+
+- Issues: [[https://go.dev/issue/45038][https://go.dev/issue/45038]], [[https://go.dev/issue/42537][https://go.dev/issue/42537]]
+
+* io.OffsetWriter
+
+- Useful for concurrent writes to a file/buffer
+
+.play -edit io.go /START OMIT/,/END OMIT/
+
+* reflect package changes
+
+- Comparable, Equal, SetZero, Grow
+
+.play -edit reflect.go /START OMIT/,/END OMIT/
+
+- Issues: [[https://go.dev/issue/46746][https://go.dev/issue/46746]], [[https://go.dev/issue/52376][https://go.dev/issue/52376]]
+
+* Slice to array conversion
+
+- Creates array from slice
+- Runtime panic (!) if impossible
+
+.play -edit slice-to-array.go /START OMIT/,/END OMIT/
+
+* Add test coverage to applications
+
+- Allows instrumenting binaries with code coverage
+
+.code build-with-cover.sh /START OMIT/,/END OMIT/
+
+- Guide: [[https://go.dev/testing/coverage/][https://go.dev/testing/coverage/]]
+- Issue: [[https://go.dev/issue/51430][https://go.dev/issue/51430]]
+
+* Go test now prints running tests on timeout
+
+.code go-test-timeout.txt
+
+- Issue: [[https://go.dev/issue/39038][https://go.dev/issue/39038]]
+
+* Go test and generate skips
+
+- Useful inversion of the existing -run flag
+
+.code go-skips.txt
+
+* Binary distributions no longer include .a files
+
+- Much smaller downloads!
+- Issue: [[https://go.dev/issue/47257][https://go.dev/issue/47257]]
+
+* Full release notes
+
+[[https://go.dev/doc/go1.20][https://go.dev/doc/go1.20]]
+
+* What is your favorite new feature?
+
+Post in the chat!
+

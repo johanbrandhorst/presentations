@@ -1,0 +1,2 @@
+$ go test -skip '^Test' ./internal/db/schema/migrations/oss
+ok      github.com/hashicorp/boundary/internal/db/schema/migrations/oss 0.022s [no tests to run]

@@ -1,0 +1,4 @@
+$ go test -timeout=5s
+panic: test timed out after 5s
+running tests:
+    TestTCPSpuriousConnSetupCompletion (4s)

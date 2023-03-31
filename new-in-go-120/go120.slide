@@ -115,9 +115,10 @@ Johan Brandhorst-Satzkorn
 - Much smaller downloads!
 - Issue: [[https://go.dev/issue/47257][https://go.dev/issue/47257]]
 
-* Full release notes
+* More links
 
-[[https://go.dev/doc/go1.20][https://go.dev/doc/go1.20]]
+- [[https://go.dev/doc/go1.20][Full release notes]]
+- [[https://go-talks.appspot.com/github.com/johanbrandhorst/presentations/new-in-go-120/go120.slide][These slides online]]
 
 * What is your favorite new feature?
 

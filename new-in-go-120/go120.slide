@@ -2,7 +2,7 @@ What's new in Go 1.20
 
 Johan Brandhorst-Satzkorn
 
-: Hi everyone, I'm Johan, I'm an engineer on the backend team and this the first of hopefully many meetings in a new format that I've called Go office hours. My plan for this meeting is to have a place to talk about our primary backend development language, explore new features and discuss things that relate to how we as a team use it. I'm looking for feedback on any and all parts of this, so don't hesitate to reach out to me if you have any ideas. I have created a spreadsheet for future meetings, so if you have any particular topic that you'd like covered, reach out to me and we'll schedule it. Today my plan was to have a presentation to talk about new features in Go 1.20, the latest Go release.
+: Hi everyone, I'm Johan, I'm an engineer on the Boundary backend team and I'm here today to talk about a few new features in Go 1.20, the latest Go release.
 : Next up: Let's dive right in
 
 * Profile guided optimization

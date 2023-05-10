@@ -17,13 +17,15 @@ func main() {
 	if errors.Is(err, err2) {
 		fmt.Println("err is err2")
 	}
-	// err = fmt.Errorf("an error: %w, %w", err1, err2)
-	// if errors.Is(err, err1) {
-	// 	fmt.Println("err is err1")
-	// }
-	// if errors.Is(err, err2) {
-	// 	fmt.Println("err is err2")
-	// }
+	/*
+	err = fmt.Errorf("an error: %w, %w", err1, err2)
+	if errors.Is(err, err1) {
+		fmt.Println("err is err1")
+	}
+	if errors.Is(err, err2) {
+		fmt.Println("err is err2")
+	}
+	*/
 }
 
 // END OMIT

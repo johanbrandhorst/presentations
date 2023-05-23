@@ -1,0 +1,57 @@
+What is Wasm/WASI and why should you care?
+23rd May 2023
+
+Johan Brandhorst-Satzkorn
+@johanbrandhorst
+https://jbrandhorst.com
+
+: Hi everyone, hope you're having a good time. Today I'm going to cover some tech that's burst onto the scene in the last few years. I hope to leave you with more questions than answers.
+: 00:30
+
+* WebAssembly (Wasm)
+
+- Built for browsers
+- Non-browser VMs emerged
+- Now generic compute target
+- How to interact with the OS?
+
+.image wasm.svg 300 _
+.caption Source: [[https://webassembly.org/][webassembly.org]]
+
+* WebAssembly System Interface (WASI)
+
+- POSIX-like API for interacting with the OS
+- Growing language support (Rust, Go, Python, Java, more)
+- Write-once-run-anywhere
+- Cloud vendor support
+
+.image wasi.png 300 _
+.caption Source: [[https://wasi.dev][wasi.dev]]
+
+* Why should we care?
+
+- Java did it decades ago
+- More recently, containers (Docker)
+- NodeJS kinda did it too
+
+.image nodejs.webp 380 _
+.caption Source: [[https://www.reddit.com/r/ProgrammerHumor/comments/8d6r19/nodejs/][reddit.com]]
+
+* Problems
+
+- Docker depends on the underlying OS kernel
+- Windows/Mac support is lacking
+- Ever tried running pre-built containers on Mac M1 (ARM)?
+
+.image docker.png 380 _
+.caption Source: [[https://www.reddit.com/r/ProgrammerHumor/comments/wq9d6k/build_once_run_anywhere/][reddit.com]]
+
+* The future
+
+- Wasm/WASI is truly platform agnostic
+- Docker now has a WASI executor
+- Kubernetes supports WASI
+- We may look at WASI like we look at containers today
+
+.image rocket.png 300 _
+.caption Source: Noto color emoji set

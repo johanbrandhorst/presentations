@@ -1,0 +1,51 @@
+Common Go mistakes
+
+Johan Brandhorst-Satzkorn
+
+* Loop variable closure capture
+
+.play -edit loop-variable.go
+
+* Mutating slice of concrete values
+
+.play -edit slice-iteration.go
+
+* Not returning in HTTP handler error handling
+
+.play -edit http-error.go /START OMIT/,/END OMIT/
+
+* Interface value comparisons
+
+.play -edit interface-value.go /START OMIT/,/END OMIT/
+
+* Mutating variables in defer
+
+.play -edit mutate-defer.go
+
+* Not closing resources
+
+.play -edit closing.go
+
+* Shadowing imports
+
+.play -edit shadow-import.go
+
+* Leaking goroutines
+
+.play -edit goroutine-leak.go
+
+* Not initializing maps/channels
+
+.play -edit map-init.go
+
+* Iterating over a string
+
+.play -edit string-iteration.go
+
+* Incorrect use of errors.Is/errors.As
+
+.play -edit errors.go /START OMIT/,/END OMIT/
+
+* Using math/rand instead of crypto/rand
+
+.play -edit math-crypto.go

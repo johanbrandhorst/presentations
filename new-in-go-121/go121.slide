@@ -1,0 +1,117 @@
+What's new in Go 1.21
+
+Johan Brandhorst-Satzkorn
+
+* Loop variable experiment
+
+- Buggy example
+.play -edit loopvar.go /START OMIT/,/END OMIT/
+
+- New env var
+
+  GOEXPERIMENT=loopvar go build -o vault ./cmd/vault
+
+- Wiki with details: [[https://github.com/golang/go/wiki/LoopvarExperiment][https://github.com/golang/go/wiki/LoopvarExperiment]]
+
+* New built-ins
+
+- min, max
+.play min-max.go
+
+- Spec: [[https://tip.golang.org/ref/spec#Min_and_max][https://tip.golang.org/ref/spec#Min_and_max]]
+
+* New built-ins
+
+- clear
+.play -edit clear.go
+ 
+- Spec: [[https://tip.golang.org/ref/spec#Clear][https://tip.golang.org/ref/spec#Clear]]
+
+* New structured logging
+
+- log/slog
+
+.play slog.go
+
+- Inspired by hclog, logrus, zap, etc
+- Package: [[https://pkg.go.dev/log/slog][https://pkg.go.dev/log/slog]]
+
+* New generic packages
+
+- maps, slices, cmp
+
+.play maps.go /START OMIT/,/END OMIT/
+
+* New context functions
+
+.play context.go /START OMIT/,/END OMIT/
+
+* New sync package functions
+
+- sync.Once helpers
+
+.play sync.go /START OMIT/,/END OMIT/
+
+* New WebAssembly port
+
+  $ GOARCH=wasm GOOS=wasip1 go build -o main.wasm ./main.go
+  $ wasmtime main.wasm
+  Hello world!
+
+- Supports [[https://github.com/WebAssembly/WASI/blob/4712d490fd7662f689af6faa5d718e042f014931/legacy/preview1/docs.md][wasi_snapshot_preview1]] syscall API
+- All stdlib tests passing on wasmtime and wazero
+- Used by sqlc for [[https://github.com/sqlc-dev/sqlc-gen-kotlin/blob/main/Makefile][Kotlin]] and [[https://github.com/sqlc-dev/sqlc-gen-python/blob/main/Makefile][Python]] plugins
+- Vault exploring using it for sandboxing plugins
+- Contributed by me and Evan Phoenix among others 🚀
+
+* Package initialization order
+
+- Deterministic algorithm
+
+    Sort all packages by import path.
+    Repeat until the list of packages is empty:
+        Find the first package in the list for which all imports are already initialized.
+        Initialize that package and remove it from the list.
+
+- May break some programs that assume old, undefined behaviour
+
+* Profile guided optimization
+
+- Preview introduced in Go 1.20
+- Automatically enabled if default.pgo profile found in main package dir
+- Go compiler is now 6% faster
+
+  # Now the default behavior
+  go build -pgo=auto ./cmd/vault
+
+- Blog: [[https://go.dev/blog/pgo-preview][https://go.dev/blog/pgo-preview]]
+- User guide: [[https://tip.golang.org/doc/pgo][https://tip.golang.org/doc/pgo]]
+
+* New test features
+
+- Flag to output full test paths
+
+  # Before
+  $ go test ./internal/storage/plugin/
+  --- FAIL: TestRepository_UpdateStorageBucket (0.16s)
+    --- FAIL: TestRepository_UpdateStorageBucket/storage-bucket-cannot-unset-secrets (0.00s)
+      repository_storage_bucket_ent_test.go:1147:
+
+  # After
+  $ go test -fullpath ./internal/storage/plugin/
+  --- FAIL: TestRepository_UpdateStorageBucket (0.16s)
+    --- FAIL: TestRepository_UpdateStorageBucket/storage-bucket-cannot-unset-secrets (0.00s)
+      /home/johan/src/hashicorp/boundary-enterprise/internal/storage/plugin/repository_storage_bucket_ent_test.go:1147:
+
+- testing.Testing() reports whether a test is running. Use with caution!
+
+* What is your favorite new feature?
+
+Post in the chat!
+
+* More links
+
+- [[https://tip.go.dev/doc/go1.21][Full release notes]]
+- [[https://go-talks.appspot.com/github.com/johanbrandhorst/presentations/new-in-go-121/go121.slide][These slides online]]
+
+

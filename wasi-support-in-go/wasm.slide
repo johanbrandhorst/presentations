@@ -1,0 +1,97 @@
+Go support for WASI/Wasm
+28th September 2023
+
+Johan Brandhorst-Satzkorn
+@johanbrandhorst
+https://jbrandhorst.com
+
+*
+
+.image rustconf.png 550 _
+.caption Source: Kyle Gray's GopherCon 2022 talk [[https://github.com/gophercon/2022-talks/blob/main/KyleConroy-PluginSystemWebAssembly/slides.pdf]["Building a Plugin system in WebAssembly"]]
+
+: 1 year ago I stood exactly where you are now. I'd just watched Kyle Gray's talk on building a webassembly plugin system for his SQLC project. It's a great talk and you should watch it if you haven't already. One of the things Kyle found wasn't perfect about using WebAssembly was that you couldn't build the plugins in Go. This picture is from one of his slides, where he expressed frustration that he had to write the plugins in Rust. The joke being of course, that he had to talk about Rust at his GopherCon talk. At the time, Go's WebAssembly support was limited to building binaries that can execute in the browser. I left GopherCon last year with a great desire to help bring WASI to Go. But before we get into that, lets talk a bit about WASI and WebAssembly itself.
+: 01:00
+
+* WebAssembly (Wasm)
+
+- Built for browsers
+- Non-browser runtimes emerged
+- How to interact with the OS?
+
+.image wasm.svg 300 _
+.caption Source: [[https://webassembly.org/][webassembly.org]]
+
+: WebAssembly started as a project to bring a safe, simple and fast way to run code compiled to bytecode in web browsers. Soon after standardization however, some started experimenting with building non-browser runtimes, such as wasmtime. Turns out a lot of people were interested in a new compute architecture with properties like that of WebAssembly. These new runtimes allowed execution of Wasm bytecode anywhere you could execute them, but without a syscall API, it wasn't possible to do things like opening files and getting the current time. Through the effort of Mozilla and a few other companies, the WebAssembly System Interface AKA WASI was created.
+: 01:45
+
+* WebAssembly System Interface (WASI)
+
+- POSIX-ish API for interacting with the OS
+- No full socket support
+- Growing language support (Rust, Python, Java, more)
+- Write-once-run-anywhere
+- Cloud vendor support
+
+.image wasi.png 250 _
+.caption Source: [[https://wasi.dev][wasi.dev]]
+
+: With WASI, there's now a standard syscall API that runtimes can implement and Wasm binaries can use to interact with the operating system in most ways (though not fully with networking sockets). Languages such as Rust, Python, Java and others have implementations that allow compiling to WASI. This means you can write code once in these languages and run it anywhere a WASI runtime is supported. Cloud vendors like Fastly support executing WASI binaries directly on their edge and Azure's managed Kubernetes offering supports running WASI binaries directly.
+: 02:30
+
+* WASI/Wasm support in Go
+
+- Work began in January 2023
+- Shipped in Go 1.21 as GOOS=wasip1 GOARCH=wasm
+- Contributed by myself, Achille Roussel, Julien Fabre, Evan Phoenix and Damian Gryski
+
+.image issue.png 300 _
+
+: Now that we know what we mean by WASI/Wasm, we can get back to the story. After doing some research, on Sunday the 1st of January 2023 I posted a message to the #webassembly channel on Gophers Slack, asking for help from others interested in helping to bring WASI to Go. Together, we worked our way through 2 proposals and thousands of lines of code and I'm very pleased to say that we managed to ship it in Go 1.21 that was released this August. I want to take a moment to recognize my co-contributors, Achille Roussel, Julien Fabre, Evan Phoenix and Damian Gryski and thank them for stepping up to help with the work. This project has definitely been the most ambitious thing I've ever contributed to the Go language and I'm really proud of what we accomplished. It's a testament to the health of the Go community that we could pull this off in less than 6 months through open collaboration. Thanks also to the Go team of course who helped review the code.
+: 03:30
+
+* What does it look like?
+
+- Most things "just work" (files, standard I/O, crypto, etc)
+- Networking requires third party library and runtime support
+- Official blog post: [[https://go.dev/blog/wasi]]
+
+.code main.go
+
+  # Runs in wasmtime by default
+  $ GOOS=wasip1 GOARCH=wasm PATH=$PATH:$(go env GOROOT)/misc/wasm go run main.go
+  Hello, WASI!
+  $ export GOWASIRUNTIME=wazero # Can set runtime via GOWASIRUNTIME
+  $ GOOS=wasip1 GOARCH=wasm PATH=$PATH:$(go env GOROOT)/misc/wasm go run main.go
+  Hello, WASI!
+
+
+: I'm not going to attempt a live demo here because it'd take a bit too long, but in general Go code that is designed for WASI looks just like normal Go code. One notable exception is that networking support in WASI is limited and requires non-standard extensions. To learn more about this and how to run your Go code I recommend reading the blog post we wrote for the official Go blog. Here we have a small example of a "Hello World" program that prints to stdout when run under WASI. We use the go_wasip1_wasm_exec script in the misc/wasm directory to run the program, but you can also use other runtimes like wazero if you set the GOWASIRUNTIME environment variable.
+: 04:30
+
+* What happened to the SQLC plugins?
+
+- [[https://github.com/sqlc-dev/sqlc-gen-kotlin]]
+- [[https://github.com/sqlc-dev/sqlc-gen-python]]
+- Plugins written in Go
+- GopherCon is back to being just GopherCon!
+
+.image gophercon.png 300 _
+
+: To loop back on Kyle's project, and in what might be one of the first production use cases of Go's WASI support, the new kotlin and python plugins for SQLC are written in Go! It brought me intense joy to see WASI being used, especially since it was my original motivation for doing the work. Writing plugins like this is probably the most interesting use case for Go's WASI support today. I'm very pleased that Kyle's SQLC is now able to write its plugins in Go, but the fact is that WASI right now isn't practically ready for prime time, so I want to talk a little about the future instead.
+: 05:00
+
+* The future
+
+- New WASI API
+- Wasm/WASI is truly platform agnostic
+- Docker now has a WASI executor
+- Kubernetes supports WASI
+- We may look at WASI the way we look at containers today
+- Contribute to the next version of Go WASI! Join #webassembly on Gophers Slack
+
+.image rocket.png 200 _
+.caption Source: Noto color emoji set
+
+: The people behind the original WASI API are working hard on defining the next version of WASI, which will have full support for networking, but also potentially things like SQL, key value stores and queues directly in WASI. WASI is well on the way to becoming the next big compute platform. Docker can execute wasi binaries. Kubernetes can run WASI. Soon we may look at WASI the way we look at containers today. The future for WASI is incredibly exciting. Will you be the one standing up here a year from now talking about WASI 2 support for Go? Join us in the webassembly channel on Gophers Slack. Thank you.
+: 07:00

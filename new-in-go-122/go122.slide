@@ -1,0 +1,63 @@
+What's new in Go 1.22
+
+Johan Brandhorst-Satzkorn
+
+* New loop variables
+
+- Buggy example
+.play -edit loopvar.go /START OMIT/,/END OMIT/
+- Now just works when using "go 1.22" in go.mod
+
+* Looping over integers
+
+- Loops from 0 up to but not including the number
+.play -edit integerloop.go /START OMIT/,/END OMIT/
+
+* Loop over functions (!)
+
+- GOEXPERIMENT=rangefunc
+
+.play -edit rangefunc.go /START OMIT/,/END OMIT/
+
+* Looping over functions
+
+- More details: [[https://go.dev/wiki/RangefuncExperiment][https://go.dev/wiki/RangefuncExperiment]]
+- SQL range experiment: [[https://github.com/achille-roussel/sqlrange][https://github.com/achille-roussel/sqlrange]]
+.play -edit sqlrange.go /START OMIT/,/END OMIT/
+
+* net/http routing variables
+
+- Use {variables} in HTTP routes
+
+.play -edit routing.go /START OMIT/,/END OMIT/
+
+* First v2 of a stdlib package
+
+- math/rand/v2
+- Mostly safer randomness primitives
+- Paves the way for other packages such as encoding/json/v2
+
+* database/sql
+
+- Add generic Null[T]
+- Easier SQL DB interactions
+
+.code nullt.go
+
+* New generic functions
+
+- cmp.Or, returns first non-zero valued input
+- slices.Concat, concatenates slices
+
+.play -edit generic.go 
+
+* What is your favorite new feature?
+
+Post in the chat!
+
+* More links
+
+- [[https://tip.golang.org/doc/go1.22][Full release notes]]
+- [[https://go-talks.appspot.com/github.com/johanbrandhorst/presentations/new-in-go-122/go122.slide][These slides online]]
+
+

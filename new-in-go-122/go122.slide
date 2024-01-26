@@ -35,7 +35,10 @@ Johan Brandhorst-Satzkorn
 
 - math/rand/v2
 - Mostly safer randomness primitives
+- New rand.N, randomness for any integer type
 - Paves the way for other packages such as encoding/json/v2
+
+.play -edit randn.go /START OMIT/,/END OMIT/
 
 * database/sql
 
@@ -49,7 +52,7 @@ Johan Brandhorst-Satzkorn
 - cmp.Or, returns first non-zero valued input
 - slices.Concat, concatenates slices
 
-.play -edit generic.go 
+.play -edit generic.go
 
 * What is your favorite new feature?
 

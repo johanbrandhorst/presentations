@@ -1,0 +1,106 @@
+Go Generics Intro
+
+Johan Brandhorst-Satzkorn
+
+* What is generics?
+
+- Using types as parameters in addition to data
+- Properly called parametric polymorphism (in Go)
+- Introduced in Go 1.18
+
+* Why do we care about generics?
+
+- Makes certain problems much more ergonomic
+
+* Code without generics
+
+.play max_no_generics.go /START OMIT/,/END OMIT/
+
+* Why has it taken so long?
+
+- Go was released in 2009, 1.0 in 2012
+- Complicated journey to get generics
+- Important to get it right
+- ...It's not actually a requirement for users to be productive
+
+* The Go generics implementation
+
+- Normal function signature
+
+    func max(a, b int) int
+
+- Generic function signature
+
+    func max[T int | float64](a, b T) T
+
+* Code with generics
+
+.play max_generics.go /START OMIT/,/END OMIT/
+
+* What are constraints?
+
+- Constrain the types that can be used in a function
+
+    int | float64 // Only ints and float64
+    comparable // For any types that can be compared using == and !=
+    cmp.Ordered // For any types that can be compare using < <= > and =>
+    constraints.Signed // For any types that are signed integers
+    ...
+
+* OK but what ARE constraints?
+
+- Constraints are interfaces!
+
+    type Ordered interface {
+        ~int | ~int8 | ~int16 | ~int32 | ~int64 |
+        ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr |
+        ~float32 | ~float64 |
+        ~string
+    }
+
+- ~ is used to allow types based on the type
+
+    type MyInt int
+
+* Any interface can be used as a constraint
+
+    func Unmarshal[T proto.Message](data []byte, msg T) error
+
+- But any constraint cannot be used as an interface
+
+.play constraint.go /START OMIT/,/END OMIT/
+
+* Structs can have generic fields
+
+    type MyStruct[T int | float64] struct {
+        Items []T // Either all ints or all floats, not a mix
+    }
+
+* Annoying things
+
+- It's not possible to create a constraint requiring a struct
+- It's not possible to make type switches on type parameters
+- These are actually kind of bad ideas anyway
+- Discussions are ongoing: [[https://github.com/golang/go/issues/45380][issue]]
+
+* Generics in Boundary
+
+- [[https://github.com/hashicorp/boundary/blob/main/internal/util/pointer.go][util.Pointer]]
+- [[https://github.com/hashicorp/boundary/blob/main/internal/clientcache/internal/cache/status_test.go#L254][Client cache tests]]
+- [[https://github.com/hashicorp/boundary/blob/main/internal/pagination/pagination.go][Pagination]]
+
+- Future: perhaps the CLI code 🤔?
+
+To find all generic functions
+
+    grep -r -E 'func \w+\[' .
+
+* When should you use generics?
+
+- Almost never required
+- Use good judgment
+- If you weren't considering writing a code generator before, you probably don't need a generic function now
+- Pagination reused the logic _20_ times
+
+* Questions
+

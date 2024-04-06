@@ -1,0 +1,82 @@
+Slices/Maps under the hood
+
+Johan Brandhorst-Satzkorn
+
+* The humble array
+
+- Core primitive of ordered lists in Go
+
+.play -edit array.go
+
+* Arrays are value types
+
+.play -edit array2.go
+
+* Slices
+
+- Built on top of Arrays
+
+.play -edit slice.go /START OMIT/,/END OMIT/
+
+* Slices
+
+.image slice.png _ 600
+.caption Source: [[https://dave.cheney.net/2018/07/12/slices-from-the-ground-up][Dave Cheney's blog on slices]]
+
+* Slices are pointer value types
+
+.play -edit slice2.go
+
+* Copying slices is dangerous
+
+.play -edit slice3.go
+
+* Slice tricks
+
+- [[https://ueokande.github.io/go-slice-tricks/][https://ueokande.github.io/go-slice-tricks/]]
+
+.image expand.png _ 800
+
+* Slices package
+
+- Lots of utility functions that work on any slice
+- Binary Search, Compare, Clone, Concat, Delete, etc
+
+.play -edit slice4.go
+
+* Maps
+
+- Unordered associative array
+- Keys mush be _hashable_
+- Iteration order is _undefined_
+- Must be initialized
+
+.play -edit map.go
+
+* Maps
+
+- Maps double in size every time it fills
+- Go maps never shrink (!)
+- Pointer value type
+
+.play -edit map2.go
+
+* Maps Go package
+
+- Lots of utility generic map functions
+- Clone, Copy, Equal
+
+.play -edit map3.go
+
+* ⚠️ Warning
+
+- Overuse of utility functions can make code hard to read
+- Use the usual for loop patterns where it makes sense
+
+* More reading
+
+- [[https://dave.cheney.net/2018/07/12/slices-from-the-ground-up][Dave Cheney blog post on slices]]
+- [[https://dave.cheney.net/2018/05/29/how-the-go-runtime-implements-maps-efficiently-without-generics][Dave Cheney blog post on maps]]
+
+* Questions
+

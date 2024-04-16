@@ -1,0 +1,48 @@
+Boundary List Pagination
+
+Johan Brandhorst-Satzkorn
+
+* April 2022
+
+- HCP Boundary is 2 months from release
+- User reports slow Admin panel UI
+- Session listing is taking multiple seconds to load
+- User reported having ~5 users
+
+.image blob_sweats.png 300 _
+.caption POV: Boundary leadership team
+
+* Scramble to test and fix performance
+
+- Remove terminated sessions after 1 hour
+- Add flag to exclude terminated sessions from listing
+- Add SQL to exclude disallowed targets
+
+* List pagination
+
+- Fix listing performance issues
+- Opportunity to improve client side UX
+- Filtering/Searching
+
+* List pagination details
+
+2 phase operation
+
+- Initial phase
+- Refresh phase
+
+List tokens
+
+- Opaque to the user
+- Tracks state (grants, type of list, progress)
+
+* UX
+
+.image assets.avif 500 _
+
+* More reading
+
+- [[https://developer.hashicorp.com/boundary/docs/api-clients/api/pagination][API List pagination docs]]
+
+* Questions
+

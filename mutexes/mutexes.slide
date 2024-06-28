@@ -1,0 +1,88 @@
+We need to talk about mutexes (mutices?)
+
+Johan Brandhorst-Satzkorn
+
+* Overview
+
+- What are mutexes?
+- Why do we need mutexes?
+- How do we use mutexes?
+- Discussion
+
+* June 2024
+
+- Scenario: it's 1 week until public beta
+- We've just discovered a deadlock during shutdown
+- Impact: customers internet completely broken with no recovery
+
+.image panik.avif _ 400
+
+* What are mutexes?
+
+- Mut(ual) Ex(clusion)
+- Guarantee only the current execution context is executing
+- Usually implemented with atomic variables backed by CPU primitives
+
+.image padlock.png _ 300
+
+* Why do we need mutexes?
+
+- Avoids race conditions
+- In Go race conditions are undefined behavior
+- Application could crash, leak memory, send your browser history to your grandma 😵‍💫
+
+* Types of mutexes
+
+- Simple (sync.Mutex)
+
+- Read-Write (sync.RWMutex)
+
+* sync.Mutex
+
+- Default choice for basic use cases
+
+- Every lock contends with every other lock
+
+* sync.RWMutex
+
+- Allows multiple concurrent read locks
+
+- Only a single write lock at a time
+
+- Reduces mutex contention in read heavy applications (read: faster)
+
+- *Widely* *used* *within* *Boundary*
+
+* Hot take: sync.RWMutex considered harmful
+
+- RWMutexes are _recursive_
+
+- Multiple locks can be held by a single execution context
+
+- Combined with write locks, can very easily cause subtle deadlocks 😱
+
+* June 2024
+
+- MacOS DynamicStore integration deadlock
+
+- Complex locking strategy as a result of CGO callback interaction
+
+- Fix: convert sync.RWMutex to sync.Mutex, fix any recursive locks
+
+- Public beta released on schedule, deadlock not been seen since 🎉
+
+* Discussion
+
+- When is sync.RWMutex the right choice?
+
+- Should we use sync.Mutex by default?
+
+- *Prioritize* *clarity* *and* *logic* *constraints* *over* *performance*
+
+- Performance can be fixed later
+
+* Questions?
+
+.image gopher.png _ 500
+
+.caption _Gopher_ by [[http://reneefrench.blogspot.co.uk/2014/08/blog-post_4.html][Renée French]]

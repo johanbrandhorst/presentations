@@ -1,0 +1,25 @@
+Go 1.23 iterators
+
+Johan Brandhorst-Satzkorn
+
+* What's an iterator?
+
+- Function/pattern used to iterate over values, e.g.
+
+.play for.go
+
+* Why do we need any changes?
+
+- We already have the range keyword
+- Patterns exist for iteration
+- Lets look at some examples
+
+* database/sql.Rows
+
+.code sqliter.go /START OMIT/,/END OMIT/
+
+* sync.Map
+
+.play syncmap.go
+
+* bufio.Scanner

@@ -7,8 +7,12 @@ import (
 )
 
 func main() {
-	scan := bufio.NewScanner(strings.NewReader("foo\nbar\nbaz\n"))
-	for scan.Scan() {
-		fmt.Println(scan.Text())
+	scanner := bufio.NewScanner(strings.NewReader("foo\nbar\nbaz\n"))
+	for scanner.Scan() {
+		fmt.Println(scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+		return
 	}
 }

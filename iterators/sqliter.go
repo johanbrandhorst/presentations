@@ -6,12 +6,12 @@ import (
 )
 
 func main() {
-	// START OMIT
 	db, err := sql.Open("sqlite3", "./foo.db")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
+	// START OMIT
 	rows, err := db.Query("SELECT * FROM foo")
 	if err != nil {
 		log.Fatal(err)

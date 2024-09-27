@@ -1,0 +1,102 @@
+Go 1.23 iterators
+
+Johan Brandhorst-Satzkorn
+
+* What's an iterator?
+
+- Function/pattern used to iterate over values, e.g.
+
+.play for.go
+
+* Why do we need any changes?
+
+- We already have the range keyword
+- Patterns exist for iteration
+- Lets look at some examples from the standard library
+
+* database/sql.Rows
+
+.code sqliter.go /START OMIT/,/END OMIT/
+
+  for rows.Next() { rows.Scan() }; rows.Err()
+
+* sync.Map
+
+.play syncmap.go
+
+  m.Range(func(k, v any) bool {})
+
+* bufio.Scanner
+
+.play bufioscanner.go
+
+  for scanner.Scan() { scanner.Text() }; scanner.Err()
+
+* filepath.Walk
+
+.play filepathwalk.go
+
+  filepath.Walk(".", func(path string, info os.FileInfo, err error) error {})
+
+* Sooo, how should we write iterators?
+
+- The standard library has a bajillion different ways to do it already
+- The community needs a standardised way to do iteration
+
+* Go 1.23
+
+- Any function of a special signature is an iterator
+
+  func(yield func() bool)
+  func(yield func(V) bool)
+  func(yield func(K, V) bool)
+
+- New `iter` package contains types for iteration
+
+  Seq[V any]     func(yield func(V) bool)
+  Seq2[K, V any] func(yield func(K, V) bool)
+
+* Set example
+
+.play push.go  /START OMIT/,/END OMIT/
+
+This is called a "standard iterator" or  "push iterator"
+
+* Pull iterators
+
+- Sometimes we want to be able to control iteration as a caller
+- The new `iter.Pull` turns a push iterator into a pull iterator
+
+.code pull.go /START OMIT/,/END OMIT/
+
+* New slices and maps functions
+
+* Slices
+
+    All([]E) iter.Seq2[int, E]
+    Values([]E) iter.Seq[E]
+    Collect(iter.Seq[E]) []E
+    AppendSeq([]E, iter.Seq[E]) []E
+    Backward([]E) iter.Seq2[int, E]
+    Sorted(iter.Seq[E]) []E
+    SortedFunc(iter.Seq[E], func(E, E) int) []E
+    SortedStableFunc(iter.Seq[E], func(E, E) int) []E
+    Repeat([]E, int) []E
+    Chunk([]E, int) iter.Seq([]E)
+
+* Maps
+
+    All(map[K]V) iter.Seq2[K, V]
+    Keys(map[K]V) iter.Seq[K]
+    Values(map[K]V) iter.Seq[V]
+    Collect(iter.Seq2[K, V]) map[K, V]
+    Insert(map[K, V], iter.Seq2[K, V])
+
+
+* So, should we use them?
+
+- Like many new language constructs, it is worth waiting to see
+- We've been slow to adopt generics, but they are appearing in places
+- Iterators can create useful APIs for users.
+
+* Questions?

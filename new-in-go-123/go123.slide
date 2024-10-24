@@ -1,0 +1,91 @@
+What's new in Go 1.23
+
+Johan Brandhorst-Satzkorn
+
+* Loop over functions
+
+- We can now create custom, efficient, iteration!
+- Check my talk from last week for more details
+
+.play -edit rangefunc.go /START OMIT/,/END OMIT/
+
+* New iterator functions in maps and slices
+
+* Slices
+
+    All([]E) iter.Seq2[int, E]
+    Values([]E) iter.Seq[E]
+    Collect(iter.Seq[E]) []E
+    AppendSeq([]E, iter.Seq[E]) []E
+    Backward([]E) iter.Seq2[int, E]
+    Sorted(iter.Seq[E]) []E
+    SortedFunc(iter.Seq[E], func(E, E) int) []E
+    SortedStableFunc(iter.Seq[E], func(E, E) int) []E
+    Chunk([]E, int) iter.Seq([]E)
+
+.play -edit slicesiter.go
+
+* Maps
+
+    All(map[K]V) iter.Seq2[K, V]
+    Keys(map[K]V) iter.Seq[K]
+    Values(map[K]V) iter.Seq[V]
+    Collect(iter.Seq2[K, V]) map[K, V]
+    Insert(map[K, V], iter.Seq2[K, V]) 
+
+.play -edit mapsiter.go
+
+* New Slices package functions (non-iterator)
+
+- Repeat([]E, int) []E
+
+.play -edit repeat.go
+
+* New unique package
+
+- Used to reduce memory consumption in some apps
+
+.play -edit unique.go /START OMIT/,/END OMIT/
+
+* New atomics operations
+
+    And(mask int32) (old int32)
+    Or(mask int32) (old int32)
+
+.play -edit atomics.go
+
+* Copy entire io/fs filesystems with os
+
+    CopyFS(dir string, fsys fs.FS) error
+
+.play -edit copy.go
+
+* New HTTP Cookie header helpers
+
+.play -edit cookies.go /START OMIT/,/END OMIT/
+
+* Cookies continued
+
+.play -edit cookiesnamed.go /START OMIT/,/END OMIT/
+
+* Timer changes
+
+- Timers are now garbage collected as soon as they become unreachable
+- No more worrying about calling Stop() to avoid memory hogging!
+- The Reset method behavior has been "fixed"
+
+.play -edit timer.go /START OMIT/,/END OMIT/
+
+- Requires "go 1.23" in go.mod
+
+* What is your favorite new feature?
+
+Post in the chat!
+
+* More links
+
+- [[https://go.dev/doc/go1.23][Full release notes]]
+- [[https://antonz.org/go-1-23][Interactive release notes]]
+- [[https://go-talks.appspot.com/github.com/johanbrandhorst/presentations/new-in-go-123/go123.slide][These slides online]]
+
+

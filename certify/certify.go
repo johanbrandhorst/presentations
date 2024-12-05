@@ -15,7 +15,7 @@ import (
 // Issuer is the interface that must be implemented
 // by certificate issuers.
 type Issuer interface {
-	Issue(context.Context, string, *certify.CertConfig) (*tls.Certificate, error)
+	Issue(ctx context.Context, cn string, conf *certify.CertConfig) (*tls.Certificate, error)
 }
 
 func main() {
@@ -35,7 +35,7 @@ func main() {
 	}
 
 	c := &certify.Certify{
-		CommonName: "monzo.uk",
+		CommonName: "jbrandhorst.com",
 		Issuer:     issuer,
 		// Cache certificates in memory.
 		Cache: certify.NewMemCache(),
@@ -43,7 +43,7 @@ func main() {
 		RenewBefore: 24 * time.Hour,
 		// Optionally configure properties of the certificates.
 		CertConfig: &certify.CertConfig{
-			SubjectAlternativeNames:   []string{"staging.monzo.uk"},
+			SubjectAlternativeNames:   []string{"trailrunn.ing"},
 			IPSubjectAlternativeNames: []net.IP{net.IPv6loopback},
 			// Can also specify a custom private key generator, defaults to ECDSA p256.
 		},
@@ -52,7 +52,8 @@ func main() {
 	s := &http.Server{
 		Addr: ":https",
 		TLSConfig: &tls.Config{
-			GetCertificate: c.GetCertificate,
+			GetCertificate:       c.GetCertificate,
+			GetClientCertificate: c.GetClientCertificate,
 		},
 	}
 	s.ListenAndServeTLS("", "")
